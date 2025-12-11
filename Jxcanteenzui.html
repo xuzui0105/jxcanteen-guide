@@ -1,0 +1,1862 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>聚芯食堂指南</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --mcd-yellow: #FFBC0D;
+            --mcd-red: #DA291C;
+            --bg-color: #FAFAFA;
+            --card-white: #FFFFFF;
+            --text-main: #292929;
+            --text-sub: #757575;
+            --shadow-card: 0 8px 24px rgba(0,0,0,0.06);
+            --radius-box: 20px;
+            --safe-bottom: env(safe-area-inset-bottom);
+        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body {
+            background-color: var(--bg-color);
+            font-family: 'Nunito', sans-serif;
+            color: var(--text-main);
+            margin: 0;
+            padding-bottom: calc(90px + var(--safe-bottom));
+        }
+        
+        header { 
+            background: var(--card-white);
+            padding: 15px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .brand-title { font-weight: 900; font-size: 20px; display: flex; align-items: center; gap: 8px; }
+        .brand-logo { color: var(--mcd-yellow); font-size: 24px; }
+        .status-badge {
+            font-size: 12px;
+            font-weight: bold;
+            background: #F5F5F5;
+            color: #666;
+            padding: 6px 12px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .container { padding: 20px; max-width: 600px; margin: 0 auto; }
+        .page-view { display: none; animation: fadeIn 0.3s ease; }
+        .page-view.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            font-size: 20px;
+            font-weight: 900;
+            margin: 30px 0 15px 0;
+        }
+        .cat-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--mcd-yellow);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 10px;
+            font-size: 14px;
+            color: #000;
+        }
+        .btn-analysis {
+            background: var(--text-main);
+            color: var(--mcd-yellow);
+            width: 100%;
+            padding: 15px;
+            border-radius: 50px;
+            font-weight: 900;
+            text-align: center;
+            margin-top: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .current-week-banner {
+            background: #FFF8E1;
+            color: #8D6E63;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 800;
+            padding: 10px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+        .week-header-area {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .week-scroll {
+            display: flex;
+            overflow-x: auto;
+            gap: 10px;
+            scrollbar-width: none;
+            flex: 1;
+            margin-right: 15px;
+        }
+        .week-scroll::-webkit-scrollbar { display: none; }
+        .week-pill {
+            background: white;
+            border: 1px solid #eee;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 800;
+            color: #999;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+        .week-pill.active {
+            background: var(--mcd-yellow);
+            color: black;
+            border-color: var(--mcd-yellow);
+            box-shadow: 0 4px 10px rgba(255, 188, 13, 0.3);
+        }
+        .btn-upload-week {
+            width: 40px;
+            height: 40px;
+            background: var(--text-main);
+            color: var(--mcd-yellow);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            cursor: pointer;
+        }
+        .daily-menu-card {
+            background: var(--card-white);
+            border-radius: var(--radius-box);
+            box-shadow: var(--shadow-card);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .daily-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            border-bottom: 2px dashed #f0f0f0;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+        .day-big { font-size: 24px; font-weight: 900; line-height: 1; }
+        .day-small { font-size: 14px; color: var(--text-sub); font-weight: 700; }
+        .menu-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+        .menu-row { display: flex; align-items: center; gap: 10px; }
+        .menu-tag {
+            font-size: 12px;
+            font-weight: 800;
+            padding: 4px 8px;
+            border-radius: 6px;
+            min-width: 45px;
+            text-align: center;
+        }
+        .tag-main { background: #FFE082; color: #5D4037; }
+        .tag-stir { background: #FFCCBC; color: #BF360C; }
+        .tag-veg { background: #C8E6C9; color: #2E7D32; }
+        .tag-soup { background: #B3E5FC; color: #0277BD; }
+        .menu-content { font-size: 16px; font-weight: 700; color: var(--text-main); flex: 1; }
+
+        .dish-list { display: flex; flex-direction: column; gap: 15px; }
+        .big-dish-card {
+            background: var(--card-white);
+            border-radius: var(--radius-box);
+            box-shadow: var(--shadow-card);
+            overflow: hidden;
+            display: flex;
+            height: 100px;
+            align-items: stretch;
+        }
+        .card-img-area {
+            width: 80px;
+            background-color: #FFF8E1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 36px;
+            border-right: 1px solid #f0f0f0;
+        }
+        .card-info { flex: 1; padding: 10px 15px; display: flex; flex-direction: column; justify-content: center; overflow: hidden; }
+        .card-name {
+            font-size: 18px;
+            font-weight: 900;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .card-meta {
+            font-size: 12px;
+            color: var(--text-sub);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .vote-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .vote-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--shadow-card);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .vote-card-img {
+            height: 80px;
+            background: #FFF8E1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 32px;
+        }
+        .vote-card-body { padding: 10px; text-align: center; }
+        .vote-card-name {
+            font-weight: 900;
+            font-size: 15px;
+            margin-bottom: 10px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .vote-actions { display: flex; justify-content: space-around; gap: 10px; }
+        .vote-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #ccc;
+            font-size: 18px;
+        }
+        .vote-btn.like.active {
+            background: var(--mcd-yellow);
+            color: black;
+            transform: scale(1.1);
+            box-shadow: 0 4px 10px rgba(255,188,13,0.4);
+        }
+        .vote-btn.dislike.active {
+            background: var(--mcd-red);
+            color: white;
+            transform: scale(1.1);
+            box-shadow: 0 4px 10px rgba(218,41,28,0.4);
+        }
+
+        .recipe-tabs { display: flex; justify-content: center; margin-bottom: 20px; gap: 15px; }
+        .recipe-tab {
+            font-size: 16px;
+            font-weight: 800;
+            color: #999;
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .recipe-tab.active {
+            background: var(--mcd-yellow);
+            color: black;
+            box-shadow: 0 4px 10px rgba(255,188,13,0.3);
+        }
+        .recipe-tab-count {
+            font-size: 12px;
+            background: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: 5px;
+            color: black;
+            vertical-align: middle;
+        }
+        .btn-upload-recipe-big {
+            width: 100%;
+            height: 60px;
+            background: black;
+            color: var(--mcd-yellow);
+            border-radius: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+        .recipe-list { display: flex; flex-direction: column; gap: 15px; }
+        .recipe-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--shadow-card);
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+        .recipe-card-content { flex: 1; }
+        .recipe-title { font-size: 18px; font-weight: 900; margin-bottom: 5px; }
+        .recipe-author { font-size: 12px; color: #888; display: flex; align-items: center; gap: 5px; }
+        .recipe-support-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            margin-left: 15px;
+            min-width: 50px;
+        }
+        .icon-support { font-size: 24px; color: #eee; cursor: pointer; transition: all 0.2s; }
+        .icon-support.active {
+            color: var(--mcd-yellow);
+            transform: scale(1.2);
+            filter: drop-shadow(0 2px 4px rgba(255,188,13,0.5));
+        }
+        .support-count { font-size: 12px; font-weight: bold; color: #555; }
+        .form-section { margin-bottom: 20px; }
+        .form-section-title {
+            font-weight: 900;
+            font-size: 16px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .form-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
+        .btn-add-row {
+            background: #eee;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .btn-del-row {
+            color: #e57373;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .recipe-detail-card {
+            width: 100%;
+            max-width: 500px;
+            background: white;
+            border-radius: 24px;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            padding: 0;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        .recipe-detail-header {
+            background: #FFF8E1;
+            padding: 25px 20px;
+            border-bottom: 1px dashed #eee;
+            position: relative;
+        }
+        .recipe-detail-title { font-size: 24px; font-weight: 900; margin-bottom: 5px; }
+        .recipe-detail-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 28px;
+            cursor: pointer;
+            color: #8D6E63;
+        }
+        .recipe-detail-body { padding: 20px; overflow-y: auto; }
+        .detail-sec { margin-bottom: 20px; }
+        .detail-sec-title {
+            font-size: 16px;
+            font-weight: 900;
+            margin-bottom: 10px;
+            color: #555;
+            background: #f5f5f5;
+            padding: 5px 10px;
+            border-radius: 8px;
+            display: inline-block;
+        }
+        .detail-item {
+            margin-bottom: 8px;
+            font-size: 15px;
+            line-height: 1.5;
+            padding-left: 10px;
+            border-left: 3px solid #eee;
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: white;
+            padding: 10px 20px calc(10px + var(--safe-bottom));
+            display: flex;
+            justify-content: space-around;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+            border-top-left-radius: 24px;
+            border-top-right-radius: 24px;
+            z-index: 500;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #ccc;
+            font-size: 11px;
+            font-weight: 700;
+            gap: 4px;
+            transition: all 0.2s;
+        }
+        .nav-item i { font-size: 22px; margin-bottom: 4px; }
+        .nav-item.active { color: var(--mcd-red); transform: translateY(-2px); }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+            z-index: 999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .modal-card-large {
+            background: #f5f5f5;
+            width: 100%;
+            max-width: 500px;
+            border-radius: 24px;
+            padding: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            max-height: 90vh;
+        }
+        .modal-card-small {
+            background: white;
+            width: 100%;
+            max-width: 350px;
+            border-radius: 24px;
+            padding: 30px;
+        }
+        .input-field {
+            width: 100%;
+            padding: 15px;
+            background: #F5F5F5;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            outline: none;
+        }
+        .btn-submit {
+            background: var(--mcd-red);
+            color: white;
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 999px;
+            font-size: 16px;
+            font-weight: 900;
+            cursor: pointer;
+            text-align: center;
+        }
+        .btn-close {
+            margin-top: 15px;
+            background: transparent;
+            border: none;
+            color: var(--text-sub);
+            font-weight: 700;
+            width: 100%;
+            cursor: pointer;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .modal-title { font-size: 20px; font-weight: 900; }
+        .modal-body { flex: 1; overflow-y: auto; padding-right: 5px; }
+
+        .rank-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+        .rank-title {
+            font-weight: 900;
+            font-size: 18px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .rank-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px dashed #eee;
+        }
+        .rank-index {
+            width: 24px;
+            height: 24px;
+            background: #eee;
+            border-radius: 50%;
+            font-size: 12px;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 10px;
+        }
+
+        .week-selector-group { display: flex; gap: 10px; margin-bottom: 20px; }
+        .week-select-btn {
+            flex: 1;
+            padding: 15px;
+            border-radius: 12px;
+            border: 2px solid #ddd;
+            background: white;
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .week-select-btn.selected {
+            border-color: var(--mcd-yellow);
+            background: #FFF8E1;
+            color: black;
+        }
+        .edit-day-block {
+            background: white;
+            border-radius: 16px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .edit-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            gap: 8px;
+        }
+        .edit-label {
+            width: 40px;
+            font-size: 12px;
+            font-weight: bold;
+            text-align: center;
+            padding: 4px;
+            border-radius: 4px;
+        }
+        .edit-input-box {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #fff;
+            cursor: pointer;
+            min-height: 36px;
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            color: #333;
+        }
+        .edit-input-box.empty { color: #ccc; }
+        .edit-del-btn {
+            width: 30px;
+            height: 30px;
+            color: #e57373;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .selector-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        .selector-item {
+            background: white;
+            border: 2px solid #eee;
+            border-radius: 12px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .selector-item.selected {
+            border-color: var(--mcd-yellow);
+            background: #FFF8E1;
+            transform: scale(0.98);
+        }
+        .selector-item-name { font-weight: bold; font-size: 14px; margin-bottom: 4px; }
+
+        /* 菜单页顶部条 + 编辑按钮 */
+        .library-top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .library-title {
+            font-size: 18px;
+            font-weight: 900;
+        }
+        .btn-edit-library {
+            border: none;
+            background: #000;
+            color: var(--mcd-yellow);
+            border-radius: 999px;
+            padding: 6px 14px;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+
+        /* 菜品库编辑弹窗 */
+        .dish-manager-section {
+            background: #fff;
+            border-radius: 16px;
+            padding: 12px 12px 10px;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        }
+        .dish-manager-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .dish-manager-title {
+            font-size: 15px;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .cat-icon-small {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #FFF8E1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+        .dish-manager-add {
+            border: none;
+            background: #000;
+            color: var(--mcd-yellow);
+            border-radius: 999px;
+            padding: 4px 10px;
+            font-size: 11px;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .dish-manager-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .dish-manager-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .dish-manager-name-tag {
+            flex: 1;
+            padding: 6px 10px;
+            background: #F5F5F5;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .dish-manager-input {
+            flex: 1;
+            padding: 6px 10px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+            outline: none;
+        }
+        .dish-manager-delete,
+        .dish-manager-save,
+        .dish-manager-cancel {
+            border: none;
+            border-radius: 999px;
+            padding: 4px 8px;
+            font-size: 11px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .dish-manager-delete {
+            background: #ffebee;
+            color: #D32F2F;
+        }
+        .dish-manager-save {
+            background: #000;
+            color: var(--mcd-yellow);
+        }
+        .dish-manager-cancel {
+            background: transparent;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="brand-title"><i class="fas fa-bowl-food brand-logo"></i> 聚芯食堂指南</div>
+    <div class="status-badge"><i class="fas fa-wifi" style="color: #4CAF50;"></i> 在线</div>
+</header>
+
+<div id="page-home" class="page-view active">
+    <div class="container">
+        <div id="current-week-display" class="current-week-banner"><i class="far fa-clock"></i> 加载中...</div>
+        <div class="week-header-area">
+            <div class="week-scroll">
+                <div class="week-pill active" id="pill-current" onclick="viewWeek('current', this)">本周</div>
+                <div class="week-pill" id="pill-next" onclick="viewWeek('next', this)">下周</div>
+                <div class="week-pill" id="pill-last" onclick="viewWeek('last', this)">上周回顾</div>
+            </div>
+            <!-- 这里改成带 action 的调用：menu -->
+            <div class="btn-upload-week" onclick="requestAdminAccess('menu')"><i class="fas fa-edit"></i></div>
+        </div>
+        <div id="weekly-menu-container">
+            <div style="text-align:center; padding: 40px; color:#999;"><i class="fas fa-spinner fa-spin"></i> 正在加载菜单...</div>
+        </div>
+    </div>
+</div>
+
+<div id="page-vote" class="page-view">
+    <div class="container">
+        <div class="current-week-banner" id="vote-date-banner"><i class="far fa-clock"></i> 正在同步日期...</div>
+        <div class="category-header"><div class="cat-icon">🍖</div> 主菜 (Main)</div>
+        <div class="vote-grid" id="vote-list-main"></div>
+        <div class="category-header"><div class="cat-icon">🍳</div> 炒菜 (Stir-fry)</div>
+        <div class="vote-grid" id="vote-list-stir"></div>
+        <div class="category-header"><div class="cat-icon">🥦</div> 时蔬 (Veg)</div>
+        <div class="vote-grid" id="vote-list-veg"></div>
+        <div class="category-header"><div class="cat-icon">🥣</div> 汤 (Soup)</div>
+        <div class="vote-grid" id="vote-list-soup"></div>
+        <div class="btn-analysis" onclick="openAnalysis()"><i class="fas fa-chart-pie"></i> 查看数据分析</div>
+    </div>
+</div>
+
+<div id="page-recipe" class="page-view">
+    <div class="container">
+        <div class="recipe-tabs">
+            <div class="recipe-tab active" id="tab-recipe-all" onclick="switchRecipeTab('all')">食谱 <span class="recipe-tab-count" id="count-recipe-all">0</span></div>
+            <div class="recipe-tab" id="tab-recipe-mine" onclick="switchRecipeTab('mine')">我的 <span class="recipe-tab-count" id="count-recipe-mine">0</span></div>
+        </div>
+        <div id="upload-recipe-btn-container">
+            <div class="btn-upload-recipe-big" onclick="openUploadRecipeModal()">
+                <i class="fas fa-plus-circle" style="margin-right:10px;"></i> 上传食谱
+            </div>
+        </div>
+        <div class="recipe-list" id="recipe-list-container">
+            <div style="text-align:center; padding:40px; color:#999;"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>
+        </div>
+        <div class="btn-analysis" onclick="showRecipeAnalysis()"><i class="fas fa-chart-line"></i> 每周上桌人气榜</div>
+    </div>
+</div>
+
+<div id="page-library" class="page-view">
+    <div class="container">
+        <div class="library-top-bar">
+            <div class="library-title">菜单总览</div>
+            <!-- 这里改成带 action 的调用：library -->
+            <button class="btn-edit-library" onclick="requestAdminAccess('library')">
+                <i class="fas fa-pen"></i> 编辑菜单
+            </button>
+        </div>
+
+        <div class="category-header"><div class="cat-icon">🍖</div> 主菜 (Main)</div>
+        <div class="dish-list" id="list-main"></div>
+
+        <div class="category-header"><div class="cat-icon">🍳</div> 炒菜 (Stir-fry)</div>
+        <div class="dish-list" id="list-stir"></div>
+
+        <div class="category-header"><div class="cat-icon">🥦</div> 时蔬 (Veg)</div>
+        <div class="dish-list" id="list-veg"></div>
+
+        <div class="category-header"><div class="cat-icon">🥣</div> 汤 (Soup)</div>
+        <div class="dish-list" id="list-soup"></div>
+    </div>
+</div>
+
+<div class="bottom-nav">
+    <div class="nav-item active" onclick="switchPage('home', this)"><i class="fas fa-calendar-alt"></i>本周</div>
+    <div class="nav-item" onclick="switchPage('vote', this)"><i class="fas fa-thumbs-up"></i>投票</div>
+    <div class="nav-item" onclick="switchPage('recipe', this)"><i class="fas fa-book-open"></i>食谱</div>
+    <div class="nav-item" onclick="switchPage('library', this)"><i class="fas fa-utensils"></i>菜单</div>
+</div>
+
+<!-- 管理员密码 -->
+<div class="modal-overlay" id="passwordOverlay">
+    <div class="modal-card-small" onclick="event.stopPropagation()">
+        <div class="modal-title" style="text-align:center; margin-bottom:20px;">管理员验证</div>
+        <input type="password" id="adminPasswordInput" class="input-field" placeholder="请输入管理员密码" style="text-align:center; font-size:18px;">
+        <button class="btn-submit" onclick="verifyAdminPassword()">确认进入</button>
+        <button class="btn-close" onclick="closePasswordModal()">取消</button>
+    </div>
+</div>
+
+<!-- 上传食谱 -->
+<div class="modal-overlay" id="uploadRecipeOverlay">
+    <div class="modal-card-large" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <div class="modal-title">分享美味食谱</div>
+            <div style="cursor:pointer; font-size:24px;" onclick="closeUploadRecipeModal()">&times;</div>
+        </div>
+        <div class="modal-body">
+            <div class="form-section">
+                <div class="form-section-title">菜品名称</div>
+                <input type="text" id="recipeTitleInput" class="input-field" placeholder="例如：红烧排骨" autocomplete="off" style="margin-bottom:10px;">
+            </div>
+            <div class="form-section">
+                <div class="form-section-title">
+                    用料清单
+                    <div class="btn-add-row" onclick="addIngredientRow()"><i class="fas fa-plus"></i></div>
+                </div>
+                <div id="ingredients-container"></div>
+            </div>
+            <div class="form-section">
+                <div class="form-section-title">
+                    烹饪步骤
+                    <div class="btn-add-row" onclick="addStepRow()"><i class="fas fa-plus"></i></div>
+                </div>
+                <div id="steps-container"></div>
+            </div>
+        </div>
+        <div style="margin-top: 15px;">
+            <button class="btn-submit" onclick="submitRecipe()">发布食谱</button>
+        </div>
+    </div>
+</div>
+
+<!-- 食谱详情 -->
+<div class="modal-overlay" id="recipeDetailOverlay">
+    <div class="modal-card-large recipe-detail-card" onclick="event.stopPropagation()">
+        <div class="recipe-detail-header">
+            <div class="recipe-detail-title" id="detail-title">...</div>
+            <div style="color:#888; font-size:12px;">由 <span id="detail-author">...</span> 提供</div>
+            <div class="recipe-detail-close" onclick="closeRecipeDetail()">&times;</div>
+        </div>
+        <div class="recipe-detail-body">
+            <div class="detail-sec">
+                <div class="detail-sec-title">🥘 用料</div>
+                <div id="detail-ingredients"></div>
+            </div>
+            <div class="detail-sec">
+                <div class="detail-sec-title">🔥 步骤</div>
+                <div id="detail-steps"></div>
+            </div>
+        </div>
+        <div style="padding: 20px; text-align:center; background:#fff; border-top:1px solid #eee;">
+            <button class="btn-close" onclick="closeRecipeDetail()" style="color:white; background:black; border-radius:50px; padding:12px;">关闭</button>
+        </div>
+    </div>
+</div>
+
+<!-- 数据分析 -->
+<div class="modal-overlay" id="analysisOverlay">
+    <div class="modal-card-large" onclick="event.stopPropagation()" style="background: #F8F9FA;">
+        <div class="modal-header">
+            <div class="modal-title" style="color:#292929" id="analysis-title">
+                <i class="fas fa-chart-bar"></i> 数据分析
+            </div>
+            <div style="cursor:pointer; font-size:24px;" onclick="closeAnalysis()">&times;</div>
+        </div>
+        <div class="modal-body" id="analysis-content"></div>
+    </div>
+</div>
+
+<!-- 菜品库原来的单个添加弹窗（保留） -->
+<div class="modal-overlay" id="dishModalOverlay">
+    <div class="modal-card-small" onclick="event.stopPropagation()">
+        <div class="modal-title" id="dishModalTitle">添加新菜品</div>
+        <input type="text" id="dishNameInput" class="input-field" placeholder="请输入菜品名称..." autocomplete="off">
+        <button class="btn-submit" onclick="submitDishToLibrary()">提交保存</button>
+        <button class="btn-close" onclick="closeDishModal()">取消</button>
+    </div>
+</div>
+
+<!-- 菜单编辑器 -->
+<div class="modal-overlay" id="menuEditorOverlay">
+    <div class="modal-card-large" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <div class="modal-title">编辑菜单</div>
+            <div style="cursor:pointer; font-size:24px;" onclick="closeMenuEditor()">&times;</div>
+        </div>
+        <div class="modal-body">
+            <div class="week-selector-group">
+                <div class="week-select-btn selected" id="btn-edit-current" onclick="selectEditWeek('current')">
+                    编辑本周<br><span style="font-size:10px; font-weight:normal;" id="txt-edit-current-date">...</span>
+                </div>
+                <div class="week-select-btn" id="btn-edit-next" onclick="selectEditWeek('next')">
+                    编辑下周<br><span style="font-size:10px; font-weight:normal;" id="txt-edit-next-date">...</span>
+                </div>
+            </div>
+            <div id="editor-form-container"></div>
+        </div>
+        <div style="margin-top: 15px;">
+            <button class="btn-submit" onclick="submitWeeklyMenu()">全部提交保存</button>
+        </div>
+    </div>
+</div>
+
+<!-- 菜品选择器 -->
+<div class="modal-overlay" id="selectorOverlay">
+    <div class="modal-card-small" style="max-width: 400px;" onclick="event.stopPropagation()">
+        <div class="modal-title" id="selectorTitle">选择菜品</div>
+        <div style="max-height: 300px; overflow-y: auto; margin-bottom: 20px;">
+            <div id="selector-list" class="selector-grid"></div>
+        </div>
+        <button class="btn-submit" onclick="confirmDishSelection()">确认选择</button>
+        <button class="btn-close" onclick="closeSelector()">取消</button>
+    </div>
+</div>
+
+<!-- 菜品库编辑弹窗 -->
+<div class="modal-overlay" id="dishManagerOverlay">
+    <div class="modal-card-large" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <div class="modal-title">编辑菜品库</div>
+            <div style="cursor:pointer; font-size:24px;" onclick="closeDishManager()">&times;</div>
+        </div>
+        <div class="modal-body" id="dish-manager-body">
+            <!-- JS 渲染分类和列表 -->
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, push, onValue, remove, set, get, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyCf63C1feFLy7AvshyDo44USEboCgM88BA",
+        authDomain: "my-canteen-0105.firebaseapp.com",
+        databaseURL: "https://my-canteen-0105-default-rtdb.firebaseio.com",
+        projectId: "my-canteen-0105",
+        storageBucket: "my-canteen-0105.firebasestorage.app",
+        messagingSenderId: "11399021322",
+        appId: "1:11399021322:web:18902be0aba18402b2f0f3",
+        measurementId: "G-QJDV3WMWQ5"
+    };
+
+    let db;
+    let globalDishesData = {};
+    let globalVotes = {};
+    let currentWeekDishes = new Set();
+    let globalVoteLogs = {};
+
+    let currentUserId = localStorage.getItem('canteen_user_id');
+    if (!currentUserId) {
+        currentUserId = 'user_' + Math.random().toString(36).substr(2, 9);
+        localStorage.setItem('canteen_user_id', currentUserId);
+    }
+
+    let globalRecipes = {};
+    let globalRecipeVotes = {};
+    let currentRecipeTab = 'all';
+
+    let editingWeekID;
+    let viewingWeekID;
+
+    let currentSelectorTarget = null;
+    let tempSelectedDish = '';
+
+    // 🔑 记录当前管理员操作：'menu'（编辑周菜单） 或 'library'（编辑菜品库）
+    let adminAction = 'menu';
+
+    try {
+        const app = initializeApp(firebaseConfig);
+        db = getDatabase(app);
+        console.log("RTDB 连接成功, User:", currentUserId);
+    } catch (e) {
+        console.error("初始化失败", e);
+    }
+
+    function getWeekID(d) {
+        d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+        d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+        const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+        const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+        return `${d.getUTCFullYear()}-W${weekNo}`;
+    }
+    function getDateOfISOWeek(weekId) {
+        const [year, week] = weekId.split('-W').map(Number);
+        const simple = new Date(year, 0, 1 + (week - 1) * 7);
+        const ISOweekStart = simple;
+        if (simple.getDay() <= 4) ISOweekStart.setDate(simple.getDate() - simple.getDay() + 1);
+        else ISOweekStart.setDate(simple.getDate() + 8 - simple.getDay());
+        return ISOweekStart;
+    }
+    const fmtDate = (d) => `${(d.getMonth() + 1).toString().padStart(2, '0')}.${d.getDate().toString().padStart(2, '0')}`;
+    function getWeekRangeText(weekId) {
+        const monday = getDateOfISOWeek(weekId);
+        const sunday = new Date(monday);
+        sunday.setDate(monday.getDate() + 6);
+        return `${monday.getFullYear()}（${fmtDate(monday)}-${fmtDate(sunday)}）`;
+    }
+
+    const today = new Date();
+    const currentWeekID = getWeekID(today);
+    const nextWeekDate = new Date(today); nextWeekDate.setDate(today.getDate() + 7); const nextWeekID = getWeekID(nextWeekDate);
+    const lastWeekDate = new Date(today); lastWeekDate.setDate(today.getDate() - 7); const lastWeekID = getWeekID(lastWeekDate);
+
+    document.addEventListener('DOMContentLoaded', () => {
+        viewingWeekID = currentWeekID;
+        editingWeekID = currentWeekID;
+
+        if (db) {
+            onValue(ref(db, 'dishes'), (snapshot) => {
+                globalDishesData = snapshot.val() || {};
+                updateLibraryWithVotes();
+            });
+
+            onValue(ref(db, `weekly_menus/${currentWeekID}`), (snapshot) => {
+                const data = snapshot.val();
+                currentWeekDishes.clear();
+                if (data) {
+                    Object.values(data).forEach(day => {
+                        if (day.main) currentWeekDishes.add(day.main);
+                        if (day.stir) currentWeekDishes.add(day.stir);
+                        if (day.veg) currentWeekDishes.add(day.veg);
+                        if (day.soup) currentWeekDishes.add(day.soup);
+                    });
+                }
+                renderVotePage();
+            });
+
+            onValue(ref(db, 'votes'), (snapshot) => {
+                globalVotes = snapshot.val() || {};
+                renderVotePage();
+                updateLibraryWithVotes();
+            });
+
+            onValue(ref(db, 'recipes'), (snapshot) => {
+                globalRecipes = snapshot.val() || {};
+                renderRecipePage();
+            });
+
+            onValue(ref(db, `recipe_votes/${currentWeekID}`), (snapshot) => {
+                globalRecipeVotes = snapshot.val() || {};
+                renderRecipePage();
+            });
+
+            onValue(ref(db, 'vote_logs'), (snapshot) => {
+                globalVoteLogs = snapshot.val() || {};
+            });
+        }
+
+        updateBannerDate();
+        loadMenuForWeek(currentWeekID);
+        document.getElementById('vote-date-banner').innerHTML = `<i class="far fa-clock"></i> ${getWeekRangeText(currentWeekID)}`;
+        document.getElementById('txt-edit-current-date').innerText = getWeekRangeText(currentWeekID);
+        document.getElementById('txt-edit-next-date').innerText = getWeekRangeText(nextWeekID);
+
+        const dishModal = document.getElementById('dishModalOverlay');
+        dishModal.addEventListener('click', (e) => { if (e.target === dishModal) closeDishModal(); });
+
+        const menuEditorOverlay = document.getElementById('menuEditorOverlay');
+        menuEditorOverlay.addEventListener('click', (e) => { if (e.target === menuEditorOverlay) closeMenuEditor(); });
+
+        const selectorOverlay = document.getElementById('selectorOverlay');
+        selectorOverlay.addEventListener('click', (e) => { if (e.target === selectorOverlay) closeSelector(); });
+
+        const dishManagerOverlay = document.getElementById('dishManagerOverlay');
+        dishManagerOverlay.addEventListener('click', (e) => { if (e.target === dishManagerOverlay) closeDishManager(); });
+    });
+
+    // 🔑 管理员密码弹窗：带 action 参数
+    window.requestAdminAccess = (action = 'menu') => {
+        adminAction = action; // 记录当前要做什么
+        document.getElementById('passwordOverlay').style.display = 'flex';
+        document.getElementById('adminPasswordInput').value = '';
+        document.getElementById('adminPasswordInput').focus();
+    };
+    window.closePasswordModal = () => {
+        document.getElementById('passwordOverlay').style.display = 'none';
+    };
+    window.verifyAdminPassword = () => {
+        const pwd = document.getElementById('adminPasswordInput').value;
+        if (pwd === 'jxst123') {
+            closePasswordModal();
+            // 按 adminAction 决定进入哪个编辑器
+            if (adminAction === 'library') {
+                openDishManager();
+            } else {
+                openMenuEditor();
+            }
+        } else {
+            alert('密码错误，无权操作！');
+        }
+    };
+
+    function renderRecipePage() {
+        const listContainer = document.getElementById('recipe-list-container');
+        listContainer.innerHTML = '';
+        const recipes = Object.entries(globalRecipes).map(([id, data]) => ({ id, ...data }));
+        const mineRecipes = recipes.filter(r => r.authorId === currentUserId);
+        document.getElementById('count-recipe-all').innerText = recipes.length;
+        document.getElementById('count-recipe-mine').innerText = mineRecipes.length;
+
+        const displayList = currentRecipeTab === 'all' ? recipes : mineRecipes;
+        if (displayList.length === 0) {
+            listContainer.innerHTML = `<div style="text-align:center; color:#ccc; margin-top:30px;">暂无食谱</div>`;
+            return;
+        }
+
+        displayList.forEach(recipe => {
+            const votesObj = globalRecipeVotes[recipe.id] || {};
+            const voteCount = Object.keys(votesObj).length;
+            const hasVoted = votesObj[currentUserId] === true;
+            const canVote = currentRecipeTab === 'all';
+            const activeClass = hasVoted ? 'active' : '';
+
+            const card = document.createElement('div');
+            card.className = 'recipe-card';
+            card.onclick = (e) => {
+                if (e.target.closest('.recipe-support-area')) return;
+                openRecipeDetail(recipe);
+            };
+
+            card.innerHTML = `
+                <div class="recipe-card-content">
+                    <div class="recipe-title">${recipe.name}</div>
+                    <div class="recipe-author">
+                        <i class="fas fa-user-circle"></i> ${recipe.authorId === currentUserId ? '我' : '同事分享'}
+                    </div>
+                </div>
+                <div class="recipe-support-area" ${canVote ? `onclick="toggleRecipeVote('${recipe.id}')"` : ''}>
+                    <i class="fas fa-fire icon-support ${activeClass}"></i>
+                    <span class="support-count">${voteCount > 0 ? voteCount + ' 支持' : '支持上桌'}</span>
+                </div>
+            `;
+            listContainer.appendChild(card);
+        });
+    }
+
+    window.switchRecipeTab = (tab) => {
+        currentRecipeTab = tab;
+        document.querySelectorAll('.recipe-tab').forEach(el => el.classList.remove('active'));
+        document.getElementById(`tab-recipe-${tab}`).classList.add('active');
+        const uploadBtn = document.getElementById('upload-recipe-btn-container');
+        uploadBtn.style.display = tab === 'all' ? 'block' : 'none';
+        renderRecipePage();
+    };
+
+    window.openUploadRecipeModal = () => {
+        document.getElementById('uploadRecipeOverlay').style.display = 'flex';
+        document.getElementById('ingredients-container').innerHTML = '';
+        document.getElementById('steps-container').innerHTML = '';
+        document.getElementById('recipeTitleInput').value = '';
+        addIngredientRow();
+        addStepRow();
+    };
+    window.closeUploadRecipeModal = () => {
+        document.getElementById('uploadRecipeOverlay').style.display = 'none';
+    };
+    window.addIngredientRow = () => {
+        const div = document.createElement('div');
+        div.className = 'form-row ingredient-row';
+        div.innerHTML = `
+            <input type="text" class="input-field ing-name" placeholder="食材名" style="flex:2; margin:0; padding:10px;">
+            <input type="text" class="input-field ing-qty" placeholder="用量" style="flex:1; margin:0; padding:10px;">
+            <div class="btn-del-row" onclick="this.parentElement.remove()"><i class="fas fa-minus-circle"></i></div>
+        `;
+        document.getElementById('ingredients-container').appendChild(div);
+    };
+    window.addStepRow = () => {
+        const div = document.createElement('div');
+        div.className = 'form-row step-row';
+        div.innerHTML = `
+            <input type="text" class="input-field step-desc" placeholder="步骤描述..." style="flex:1; margin:0; padding:10px;">
+            <div class="btn-del-row" onclick="this.parentElement.remove()"><i class="fas fa-minus-circle"></i></div>
+        `;
+        document.getElementById('steps-container').appendChild(div);
+    };
+    window.submitRecipe = () => {
+        const title = document.getElementById('recipeTitleInput').value.trim();
+        if (!title) return alert('请填写菜品名称');
+
+        const ings = [];
+        document.querySelectorAll('.ingredient-row').forEach(row => {
+            const name = row.querySelector('.ing-name').value.trim();
+            const qty = row.querySelector('.ing-qty').value.trim();
+            if (name) ings.push({ name, qty });
+        });
+
+        const steps = [];
+        document.querySelectorAll('.step-desc').forEach(row => {
+            const val = row.value.trim();
+            if (val) steps.push(val);
+        });
+
+        if (ings.length === 0 || steps.length === 0) return alert('请至少填写一项用料和步骤');
+
+        push(ref(db, 'recipes'), {
+            name: title,
+            ingredients: ings,
+            steps: steps,
+            authorId: currentUserId,
+            createdAt: Date.now()
+        }).then(() => {
+            alert('发布成功！');
+            closeUploadRecipeModal();
+        });
+    };
+
+    window.openRecipeDetail = (recipe) => {
+        document.getElementById('detail-title').innerText = recipe.name;
+        document.getElementById('detail-author').innerText = recipe.authorId === currentUserId ? '我' : '同事';
+
+        const ingHtml = (recipe.ingredients || [])
+            .map(i => `<div class="detail-item"><b>${i.name}</b>：${i.qty}</div>`)
+            .join('');
+        document.getElementById('detail-ingredients').innerHTML = ingHtml || '无详细用料';
+
+        const stepHtml = (recipe.steps || [])
+            .map((s, i) => `<div class="detail-item"><b>步骤 ${i + 1}：</b>${s}</div>`)
+            .join('');
+        document.getElementById('detail-steps').innerHTML = stepHtml || '无详细步骤';
+
+        document.getElementById('recipeDetailOverlay').style.display = 'flex';
+    };
+    window.closeRecipeDetail = () => {
+        document.getElementById('recipeDetailOverlay').style.display = 'none';
+    };
+
+    window.toggleRecipeVote = (recipeId) => {
+        const votesRef = ref(db, `recipe_votes/${currentWeekID}/${recipeId}/${currentUserId}`);
+        get(votesRef).then((snapshot) => {
+            if (snapshot.exists()) {
+                remove(votesRef);
+            } else {
+                set(votesRef, true);
+            }
+        });
+    };
+
+    window.showRecipeAnalysis = () => {
+        let stats = [];
+        Object.keys(globalRecipes).forEach(rId => {
+            const count = globalRecipeVotes[rId] ? Object.keys(globalRecipeVotes[rId]).length : 0;
+            if (count > 0) {
+                stats.push({ name: globalRecipes[rId].name, count: count });
+            }
+        });
+        stats.sort((a, b) => b.count - a.count);
+        const container = document.getElementById('analysis-content');
+        document.getElementById('analysis-title').innerHTML = '<i class="fas fa-fire"></i> 本周上桌期待榜';
+        if (stats.length === 0) {
+            container.innerHTML = '<div style="text-align:center; padding:30px;">本周还没有人投票哦</div>';
+        } else {
+            let html = '<div class="rank-card">';
+            stats.forEach((item, index) => {
+                html += `
+                    <div class="rank-item">
+                        <div style="display:flex; align-items:center;">
+                            <div class="rank-index" style="${index === 0 ? 'background:var(--mcd-yellow);' : ''}">${index + 1}</div>
+                            <div style="font-weight:bold;">${item.name}</div>
+                        </div>
+                        <div style="color:#FFBC0D; font-weight:bold;">${item.count} 票</div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        }
+        document.getElementById('analysisOverlay').style.display = 'flex';
+    };
+
+    function renderVotePage() {
+        ['main', 'stir', 'veg', 'soup'].forEach(t => {
+            const c = document.getElementById(`vote-list-${t}`);
+            if (c) c.innerHTML = '';
+        });
+
+        Object.values(globalDishesData || {}).forEach(dish => {
+            if (currentWeekDishes.has(dish.name)) {
+                const dishVotes = globalVotes[dish.name] || {};
+                const myVote = dishVotes[currentUserId] || 0;
+                const likeActive = myVote === 1 ? 'active' : '';
+                const dislikeActive = myVote === -1 ? 'active' : '';
+                const icon = { main: '🍖', stir: '🍳', veg: '🥦', soup: '🥣' };
+
+                const html = `
+                    <div class="vote-card">
+                        <div class="vote-card-img">${icon[dish.category] || '🍽️'}</div>
+                        <div class="vote-card-body">
+                            <div class="vote-card-name">${dish.name}</div>
+                            <div class="vote-actions">
+                                <div class="vote-btn like ${likeActive}" onclick="handleVote('${dish.name}', 1)"><i class="fas fa-thumbs-up"></i></div>
+                                <div class="vote-btn dislike ${dislikeActive}" onclick="handleVote('${dish.name}', -1)"><i class="fas fa-thumbs-down"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                const container = document.getElementById(`vote-list-${dish.category}`);
+                if (container) container.innerHTML += html;
+            }
+        });
+    }
+
+    window.handleVote = (dishName, type) => {
+        const dishVotes = globalVotes[dishName] || {};
+        const currentVal = dishVotes[currentUserId] || 0;
+        const newVal = (currentVal === type ? 0 : type);
+
+        update(ref(db, `votes/${dishName}`), {
+            [currentUserId]: newVal
+        }).then(() => {
+            const logRef = ref(db, `vote_logs/${currentUserId}/${dishName}`);
+
+            if (newVal === 1) {
+                set(logRef, Date.now());
+            } else {
+                remove(logRef);
+            }
+        });
+    };
+
+    function updateLibraryWithVotes() {
+        ['main', 'stir', 'veg', 'soup'].forEach(id => {
+            const c = document.getElementById('list-' + id);
+            if (c) c.innerHTML = '';
+        });
+
+        if (globalDishesData) {
+            Object.entries(globalDishesData).forEach(([key, dish]) => {
+                const dishVotes = globalVotes[dish.name] || {};
+                let likes = 0, dislikes = 0;
+                Object.values(dishVotes).forEach(v => {
+                    if (v === 1) likes++;
+                    if (v === -1) dislikes++;
+                });
+                const html = createDishCard(key, dish.name, dish.category, likes, dislikes);
+                const container = document.getElementById('list-' + dish.category);
+                if (container) container.innerHTML += html;
+            });
+        }
+    }
+
+    function createDishCard(id, name, category, likes, dislikes) {
+        const icon = { main: '🍖', stir: '🍳', veg: '🥦', soup: '🥣' };
+        likes = likes || 0;
+        dislikes = dislikes || 0;
+        return `
+            <div class="big-dish-card">
+                <div class="card-img-area">${icon[category] || '🍽️'}</div>
+                <div class="card-info">
+                    <div class="card-name">${name}</div>
+                    <div class="card-meta">
+                        <span style="color:#FFBC0D; font-weight:bold;"><i class="fas fa-thumbs-up"></i> ${likes}</span>
+                        <span style="color:#DA291C; font-weight:bold; margin-left:10px;"><i class="fas fa-thumbs-down"></i> ${dislikes}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    window.openAnalysis = () => {
+        document.getElementById('analysisOverlay').style.display = 'flex';
+        document.getElementById('analysis-title').innerHTML = '<i class="fas fa-chart-pie"></i> 数据分析';
+
+        const container = document.getElementById('analysis-content');
+        const logsByUser = globalVoteLogs || {};
+
+        if (!logsByUser || Object.keys(logsByUser).length === 0) {
+            container.innerHTML = '<div style="text-align:center; padding:30px;">暂时还没有点赞数据</div>';
+            return;
+        }
+
+        const now = new Date();
+        const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).toString().padStart(2, '0')}`;
+        const currentYear = now.getFullYear();
+
+        const weeklyMap = {};
+        const monthlyMap = {};
+        const yearlyMap = {};
+
+        Object.values(logsByUser).forEach(userLog => {
+            if (!userLog) return;
+
+            Object.entries(userLog).forEach(([dishName, ts]) => {
+                if (!dishName || !ts) return;
+
+                const t = new Date(ts);
+                const weekId = getWeekID(t);
+                const monthKey = `${t.getFullYear()}-${String(t.getMonth() + 1).toString().padStart(2, '0')}`;
+                const year = t.getFullYear();
+
+                if (weekId === currentWeekID) {
+                    weeklyMap[dishName] = (weeklyMap[dishName] || 0) + 1;
+                }
+                if (monthKey === currentMonthKey) {
+                    monthlyMap[dishName] = (monthlyMap[dishName] || 0) + 1;
+                }
+                if (year === currentYear) {
+                    yearlyMap[dishName] = (yearlyMap[dishName] || 0) + 1;
+                }
+            });
+        });
+
+        const weeklyStats = Object.entries(weeklyMap)
+            .map(([name, count]) => ({ name, count }))
+            .sort((a, b) => b.count - a.count)
+            .slice(0, 1);
+
+        const monthlyStats = Object.entries(monthlyMap)
+            .map(([name, count]) => ({ name, count }))
+            .sort((a, b) => b.count - a.count)
+            .slice(0, 3);
+
+        const yearlyStats = Object.entries(yearlyMap)
+            .map(([name, count]) => ({ name, count }))
+            .sort((a, b) => b.count - a.count)
+            .slice(0, 5);
+
+        if (
+            weeklyStats.length === 0 &&
+            monthlyStats.length === 0 &&
+            yearlyStats.length === 0
+        ) {
+            container.innerHTML = '<div style="text-align:center; padding:30px;">本周、本月、本年暂时还没有点赞数据</div>';
+            return;
+        }
+
+        const weekRangeText = getWeekRangeText(currentWeekID);
+        let html = '';
+
+        if (weeklyStats.length > 0) {
+            html += `
+                <div class="rank-card">
+                    <div class="rank-title" style="color:#FFBC0D">
+                        <i class="fas fa-crown"></i> 本周点赞最多 TOP 1
+                    </div>
+                    <div style="font-size:12px; color:#888; margin-bottom:10px;">
+                        ${weekRangeText}
+                    </div>
+                    ${renderRankItems(weeklyStats)}
+                </div>
+            `;
+        }
+
+        if (monthlyStats.length > 0) {
+            html += `
+                <div class="rank-card">
+                    <div class="rank-title" style="color:#DA291C">
+                        <i class="fas fa-fire"></i> 本月点赞最多 TOP 3
+                    </div>
+                    <div style="font-size:12px; color:#888; margin-bottom:10px;">
+                        ${currentYear} 年 ${now.getMonth() + 1} 月
+                    </div>
+                    ${renderRankItems(monthlyStats)}
+                </div>
+            `;
+        }
+
+        if (yearlyStats.length > 0) {
+            html += `
+                <div class="rank-card">
+                    <div class="rank-title" style="color:#333">
+                        <i class="fas fa-medal"></i> 本年点赞最多 TOP 5
+                    </div>
+                    <div style="font-size:12px; color:#888; margin-bottom:10px;">
+                        ${currentYear} 年
+                    </div>
+                    ${renderRankItems(yearlyStats)}
+                </div>
+            `;
+        }
+
+        container.innerHTML = html;
+    };
+
+    window.closeAnalysis = () => {
+        document.getElementById('analysisOverlay').style.display = 'none';
+    };
+
+    function renderRankItems(list) {
+        return list.map((item, i) => `
+            <div class="rank-item">
+                <div style="display:flex; align-items:center;">
+                    <div class="rank-index" style="${i === 0 ? 'background:var(--mcd-yellow);' : ''}">${i + 1}</div>
+                    <div>${item.name}</div>
+                </div>
+                <div style="font-weight:bold; color:#FFBC0D">${item.count} ❤</div>
+            </div>
+        `).join('');
+    }
+
+    window.viewWeek = (mode, el) => {
+        document.querySelectorAll('.week-pill').forEach(p => p.classList.remove('active'));
+        el.classList.add('active');
+        if (mode === 'current') viewingWeekID = currentWeekID;
+        if (mode === 'next') viewingWeekID = nextWeekID;
+        if (mode === 'last') viewingWeekID = lastWeekID;
+        updateBannerDate();
+        loadMenuForWeek(viewingWeekID);
+    };
+    function updateBannerDate() {
+        document.getElementById('current-week-display').innerHTML = `<i class="far fa-clock"></i> ${getWeekRangeText(viewingWeekID)}`;
+    }
+    function loadMenuForWeek(weekId) {
+        const container = document.getElementById('weekly-menu-container');
+        container.innerHTML = `<div style="text-align:center; padding: 20px;"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>`;
+        onValue(ref(db, `weekly_menus/${weekId}`), (snapshot) => {
+            const data = snapshot.val();
+            container.innerHTML = '';
+            if (!data) {
+                container.innerHTML = `<div style="text-align:center; padding: 40px; color:#999;">暂无菜单</div>`;
+                return;
+            }
+            const monday = getDateOfISOWeek(weekId);
+            const weekDays = ['周一', '周二', '周三', '周四', '周五', '周六'];
+            weekDays.forEach((dayName, index) => {
+                const cardDate = new Date(monday);
+                cardDate.setDate(monday.getDate() + index);
+                const dayData = data[index] || {};
+                const html = `
+                    <div class="daily-menu-card">
+                        <div class="daily-header">
+                            <span class="day-big">${dayName}</span>
+                            <span class="day-small">${fmtDate(cardDate)}</span>
+                        </div>
+                        <div class="menu-grid">
+                            <div class="menu-row">
+                                <span class="menu-tag tag-main">主菜</span>
+                                <span class="menu-content">${dayData.main || '<span class="menu-empty">--</span>'}</span>
+                            </div>
+                            <div class="menu-row">
+                                <span class="menu-tag tag-stir">炒菜</span>
+                                <span class="menu-content">${dayData.stir || '<span class="menu-empty">--</span>'}</span>
+                            </div>
+                            <div class="menu-row">
+                                <span class="menu-tag tag-veg">时蔬</span>
+                                <span class="menu-content">${dayData.veg || '<span class="menu-empty">--</span>'}</span>
+                            </div>
+                            <div class="menu-row">
+                                <span class="menu-tag tag-soup">汤</span>
+                                <span class="menu-content">${dayData.soup || '<span class="menu-empty">--</span>'}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += html;
+            });
+        });
+    }
+
+    window.openMenuEditor = () => {
+        document.getElementById('menuEditorOverlay').style.display = 'flex';
+        selectEditWeek('current');
+    };
+    window.closeMenuEditor = () => {
+        document.getElementById('menuEditorOverlay').style.display = 'none';
+    };
+    window.selectEditWeek = (mode) => {
+        document.getElementById('btn-edit-current').classList.remove('selected');
+        document.getElementById('btn-edit-next').classList.remove('selected');
+        if (mode === 'current') {
+            document.getElementById('btn-edit-current').classList.add('selected');
+            editingWeekID = currentWeekID;
+        } else {
+            document.getElementById('btn-edit-next').classList.add('selected');
+            editingWeekID = nextWeekID;
+        }
+        renderEditorForm(editingWeekID);
+    };
+
+    async function renderEditorForm(weekId) {
+        const container = document.getElementById('editor-form-container');
+        container.innerHTML = '加载中...';
+        const snapshot = await get(ref(db, `weekly_menus/${weekId}`));
+        const existingData = snapshot.val() || {};
+        const monday = getDateOfISOWeek(weekId);
+        const weekDays = ['周一', '周二', '周三', '周四', '周五', '周六'];
+        let html = '';
+        weekDays.forEach((dayName, index) => {
+            const cardDate = new Date(monday);
+            cardDate.setDate(monday.getDate() + index);
+            const dayData = existingData[index] || {};
+            html += `
+                <div class="edit-day-block">
+                    <div class="edit-day-title">
+                        <span>${dayName} ${fmtDate(cardDate)}</span>
+                    </div>
+                    ${createInputRow(index, 'main', '主菜', 'tag-main', dayData.main)}
+                    ${createInputRow(index, 'stir', '炒菜', 'tag-stir', dayData.stir)}
+                    ${createInputRow(index, 'veg', '时蔬', 'tag-veg', dayData.veg)}
+                    ${createInputRow(index, 'soup', '汤品', 'tag-soup', dayData.soup)}
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    }
+
+    function createInputRow(dayIndex, type, label, tagClass, value) {
+        const val = value || '';
+        const displayVal = val || '点击选择菜品';
+        const emptyClass = val ? '' : 'empty';
+        return `
+            <div class="edit-row">
+                <span class="menu-tag ${tagClass} edit-label">${label}</span>
+                <div class="edit-input-box ${emptyClass}" id="box-${dayIndex}-${type}" onclick="openSelector(${dayIndex}, '${type}')">${displayVal}</div>
+                <input type="hidden" class="hidden-input-${dayIndex}-${type}" value="${val}">
+                <div class="edit-del-btn" onclick="clearSelection(${dayIndex}, '${type}')"><i class="fas fa-times-circle"></i></div>
+            </div>
+        `;
+    }
+
+    window.openSelector = (dayIndex, type) => {
+        currentSelectorTarget = { dayIndex, type };
+        tempSelectedDish = '';
+        document.getElementById('selectorOverlay').style.display = 'flex';
+        const list = document.getElementById('selector-list');
+        list.innerHTML = '';
+        const filtered = Object.values(globalDishesData || {}).filter(d => d.category === type);
+        if (filtered.length === 0) {
+            list.innerHTML = '暂无菜品';
+            return;
+        }
+        filtered.forEach(d => {
+            const el = document.createElement('div');
+            el.className = 'selector-item';
+            el.innerHTML = `<div class="selector-item-name">${d.name}</div>`;
+            el.onclick = () => {
+                document.querySelectorAll('.selector-item').forEach(i => i.classList.remove('selected'));
+                el.classList.add('selected');
+                tempSelectedDish = d.name;
+            };
+            list.appendChild(el);
+        });
+    };
+    window.closeSelector = () => {
+        document.getElementById('selectorOverlay').style.display = 'none';
+    };
+    window.confirmDishSelection = () => {
+        if (!tempSelectedDish) return;
+        const { dayIndex, type } = currentSelectorTarget;
+        document.getElementById(`box-${dayIndex}-${type}`).innerText = tempSelectedDish;
+        document.getElementById(`box-${dayIndex}-${type}`).classList.remove('empty');
+        document.querySelector(`.hidden-input-${dayIndex}-${type}`).value = tempSelectedDish;
+        closeSelector();
+    };
+    window.clearSelection = (dayIndex, type) => {
+        document.getElementById(`box-${dayIndex}-${type}`).innerText = '点击选择菜品';
+        document.getElementById(`box-${dayIndex}-${type}`).classList.add('empty');
+        document.querySelector(`.hidden-input-${dayIndex}-${type}`).value = '';
+    };
+    window.submitWeeklyMenu = () => {
+        const newData = {};
+        [0, 1, 2, 3, 4, 5].forEach(i => {
+            newData[i] = {
+                main: document.querySelector(`.hidden-input-${i}-main`).value,
+                stir: document.querySelector(`.hidden-input-${i}-stir`).value,
+                veg: document.querySelector(`.hidden-input-${i}-veg`).value,
+                soup: document.querySelector(`.hidden-input-${i}-soup`).value
+            };
+        });
+        set(ref(db, `weekly_menus/${editingWeekID}`), newData).then(() => {
+            alert('保存成功');
+            closeMenuEditor();
+        });
+    };
+
+    let currentDishCategory = '';
+    const dishModal = document.getElementById('dishModalOverlay');
+    const dishInput = document.getElementById('dishNameInput');
+
+    window.openDishModal = (category) => {
+        currentDishCategory = category;
+        const catName = { main: '主菜', stir: '炒菜', veg: '时蔬', soup: '汤品' };
+        document.getElementById('dishModalTitle').innerText = `添加${catName[category]}`;
+        dishModal.style.display = 'flex';
+        dishInput.value = '';
+        dishInput.focus();
+    };
+    window.closeDishModal = () => {
+        dishModal.style.display = 'none';
+    };
+    window.submitDishToLibrary = () => {
+        const name = dishInput.value.trim();
+        if (!name) return alert("请输入菜名！");
+        push(ref(db, 'dishes'), {
+            name: name,
+            category: currentDishCategory,
+            createdAt: Date.now()
+        }).then(() => closeDishModal());
+    };
+
+    window.switchPage = (pageId, el) => {
+        document.querySelectorAll('.page-view').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        const page = document.getElementById('page-' + pageId);
+        if (page) page.classList.add('active');
+        el.classList.add('active');
+        if (pageId === 'vote') renderVotePage();
+        if (pageId === 'recipe') renderRecipePage();
+        if (pageId === 'library') updateLibraryWithVotes();
+    };
+
+    // 菜品库编辑弹窗逻辑
+    const DISH_CATEGORIES = [
+        { key: 'main', label: '主菜', icon: '🍖' },
+        { key: 'stir', label: '炒菜', icon: '🍳' },
+        { key: 'veg',  label: '时蔬', icon: '🥦' },
+        { key: 'soup', label: '汤品', icon: '🥣' }
+    ];
+
+    window.openDishManager = () => {
+        const overlay = document.getElementById('dishManagerOverlay');
+        const body = document.getElementById('dish-manager-body');
+        body.innerHTML = '';
+
+        DISH_CATEGORIES.forEach(cat => {
+            const section = document.createElement('div');
+            section.className = 'dish-manager-section';
+            section.innerHTML = `
+                <div class="dish-manager-header">
+                    <div class="dish-manager-title">
+                        <div class="cat-icon-small">${cat.icon}</div>
+                        ${cat.label}
+                    </div>
+                    <button class="dish-manager-add" onclick="addDishInputRow('${cat.key}')">
+                        <i class="fas fa-plus"></i> 新增
+                    </button>
+                </div>
+                <div class="dish-manager-list" id="dish-manager-list-${cat.key}"></div>
+            `;
+            body.appendChild(section);
+        });
+
+        Object.entries(globalDishesData || {}).forEach(([id, dish]) => {
+            const list = document.getElementById(`dish-manager-list-${dish.category}`);
+            if (!list) return;
+            const row = buildExistingDishRow(id, dish.name, dish.category);
+            list.appendChild(row);
+        });
+
+        overlay.style.display = 'flex';
+    };
+
+    window.closeDishManager = () => {
+        document.getElementById('dishManagerOverlay').style.display = 'none';
+    };
+
+    function buildExistingDishRow(id, name, category) {
+        const row = document.createElement('div');
+        row.className = 'dish-manager-row';
+        row.dataset.id = id;
+        row.dataset.category = category;
+        row.innerHTML = `
+            <div class="dish-manager-name-tag">${name}</div>
+            <button class="dish-manager-delete" onclick="deleteDishRow('${id}')">
+                删除
+            </button>
+        `;
+        return row;
+    }
+
+    window.addDishInputRow = (category) => {
+        const list = document.getElementById('dish-manager-list-' + category);
+        if (!list) return;
+        const row = document.createElement('div');
+        row.className = 'dish-manager-row';
+        row.dataset.category = category;
+        row.innerHTML = `
+            <input type="text" class="dish-manager-input" placeholder="输入菜品名称">
+            <button class="dish-manager-save" onclick="saveNewDish(this)">添加</button>
+            <button class="dish-manager-cancel" onclick="this.parentElement.remove()">取消</button>
+        `;
+        list.prepend(row);
+    };
+
+    window.saveNewDish = (btn) => {
+        const row = btn.parentElement;
+        const input = row.querySelector('.dish-manager-input');
+        const name = input.value.trim();
+        const category = row.dataset.category;
+        if (!name) {
+            alert('请输入菜品名称');
+            input.focus();
+            return;
+        }
+        push(ref(db, 'dishes'), {
+            name,
+            category,
+            createdAt: Date.now()
+        }).then((snap) => {
+            const id = snap.key;
+            const newRow = buildExistingDishRow(id, name, category);
+            row.replaceWith(newRow);
+            updateLibraryWithVotes();
+        });
+    };
+
+    window.deleteDishRow = (id) => {
+        if (!confirm('确定要删除这道菜吗？')) return;
+        remove(ref(db, 'dishes/' + id)).then(() => {
+            const row = document.querySelector(`.dish-manager-row[data-id="${id}"]`);
+            if (row) row.remove();
+            updateLibraryWithVotes();
+        });
+    };
+</script>
+</body>
+</html>
