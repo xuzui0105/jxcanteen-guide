@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>聚芯食堂指南</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    
+
     <style>
         :root {
             --mcd-yellow: #FFBC0D;
@@ -26,8 +27,8 @@
             margin: 0;
             padding-bottom: calc(90px + var(--safe-bottom));
         }
-        
-        header { 
+
+        header {
             background: var(--card-white);
             padding: 15px 20px;
             position: sticky;
@@ -633,7 +634,6 @@
         }
         .selector-item-name { font-weight: bold; font-size: 14px; margin-bottom: 4px; }
 
-        /* 菜单页顶部条 + 编辑按钮 */
         .library-top-bar {
             display: flex;
             justify-content: space-between;
@@ -659,7 +659,6 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.15);
         }
 
-        /* 菜品库编辑弹窗 */
         .dish-manager-section {
             background: #fff;
             border-radius: 16px;
@@ -768,7 +767,6 @@
                 <div class="week-pill" id="pill-next" onclick="viewWeek('next', this)">下周</div>
                 <div class="week-pill" id="pill-last" onclick="viewWeek('last', this)">上周回顾</div>
             </div>
-            <!-- 这里改成带 action 的调用：menu -->
             <div class="btn-upload-week" onclick="requestAdminAccess('menu')"><i class="fas fa-edit"></i></div>
         </div>
         <div id="weekly-menu-container">
@@ -814,7 +812,6 @@
     <div class="container">
         <div class="library-top-bar">
             <div class="library-title">菜单总览</div>
-            <!-- 这里改成带 action 的调用：library -->
             <button class="btn-edit-library" onclick="requestAdminAccess('library')">
                 <i class="fas fa-pen"></i> 编辑菜单
             </button>
@@ -921,7 +918,7 @@
     </div>
 </div>
 
-<!-- 菜品库原来的单个添加弹窗（保留） -->
+<!-- 菜品库单个添加弹窗 -->
 <div class="modal-overlay" id="dishModalOverlay">
     <div class="modal-card-small" onclick="event.stopPropagation()">
         <div class="modal-title" id="dishModalTitle">添加新菜品</div>
@@ -950,7 +947,7 @@
             <div id="editor-form-container"></div>
         </div>
         <div style="margin-top: 15px;">
-            <button class="btn-submit" onclick="submitWeeklyMenu()">全部提交保存</button>
+            <button class="btn-submit" id="btn-save-weekly" onclick="submitWeeklyMenu()">全部提交保存</button>
         </div>
     </div>
 </div>
@@ -968,66 +965,196 @@
 </div>
 
 <!-- 菜品库编辑弹窗 -->
+<!-- 菜品库编辑弹窗（新版，和食谱同逻辑） -->
 <div class="modal-overlay" id="dishManagerOverlay">
     <div class="modal-card-large" onclick="event.stopPropagation()">
         <div class="modal-header">
             <div class="modal-title">编辑菜品库</div>
             <div style="cursor:pointer; font-size:24px;" onclick="closeDishManager()">&times;</div>
         </div>
-        <div class="modal-body" id="dish-manager-body">
-            <!-- JS 渲染分类和列表 -->
+
+        <div class="modal-body">
+
+            <!-- 主菜 -->
+            <div class="dish-manager-section">
+                <div class="dish-manager-header">
+                    <div class="dish-manager-title">
+                        <div class="cat-icon-small">🍖</div>
+                        主菜
+                    </div>
+                    <button class="dish-manager-add" onclick="showAddRow('main')">
+                        <i class="fas fa-plus"></i> 新增
+                    </button>
+                </div>
+
+                <!-- 固定存在的新增输入行（只是默认隐藏） -->
+                <div class="dish-manager-row" id="add-row-main" style="display:none;">
+                    <input type="text" class="dish-manager-input" id="input-add-main" placeholder="输入菜品名称">
+                    <button class="dish-manager-save" onclick="confirmAddDish('main')">添加</button>
+                    <button class="dish-manager-cancel" onclick="cancelAddRow('main')">取消</button>
+                </div>
+
+                <!-- 已有主菜列表 -->
+                <div class="dish-manager-list" id="dish-manager-list-main"></div>
+            </div>
+
+            <!-- 炒菜 -->
+            <div class="dish-manager-section">
+                <div class="dish-manager-header">
+                    <div class="dish-manager-title">
+                        <div class="cat-icon-small">🍳</div>
+                        炒菜
+                    </div>
+                    <button class="dish-manager-add" onclick="showAddRow('stir')">
+                        <i class="fas fa-plus"></i> 新增
+                    </button>
+                </div>
+
+                <div class="dish-manager-row" id="add-row-stir" style="display:none;">
+                    <input type="text" class="dish-manager-input" id="input-add-stir" placeholder="输入菜品名称">
+                    <button class="dish-manager-save" onclick="confirmAddDish('stir')">添加</button>
+                    <button class="dish-manager-cancel" onclick="cancelAddRow('stir')">取消</button>
+                </div>
+
+                <div class="dish-manager-list" id="dish-manager-list-stir"></div>
+            </div>
+
+            <!-- 时蔬 -->
+            <div class="dish-manager-section">
+                <div class="dish-manager-header">
+                    <div class="dish-manager-title">
+                        <div class="cat-icon-small">🥦</div>
+                        时蔬
+                    </div>
+                    <button class="dish-manager-add" onclick="showAddRow('veg')">
+                        <i class="fas fa-plus"></i> 新增
+                    </button>
+                </div>
+
+                <div class="dish-manager-row" id="add-row-veg" style="display:none;">
+                    <input type="text" class="dish-manager-input" id="input-add-veg" placeholder="输入菜品名称">
+                    <button class="dish-manager-save" onclick="confirmAddDish('veg')">添加</button>
+                    <button class="dish-manager-cancel" onclick="cancelAddRow('veg')">取消</button>
+                </div>
+
+                <div class="dish-manager-list" id="dish-manager-list-veg"></div>
+            </div>
+
+            <!-- 汤品 -->
+            <div class="dish-manager-section">
+                <div class="dish-manager-header">
+                    <div class="dish-manager-title">
+                        <div class="cat-icon-small">🥣</div>
+                        汤品
+                    </div>
+                    <button class="dish-manager-add" onclick="showAddRow('soup')">
+                        <i class="fas fa-plus"></i> 新增
+                    </button>
+                </div>
+
+                <div class="dish-manager-row" id="add-row-soup" style="display:none;">
+                    <input type="text" class="dish-manager-input" id="input-add-soup" placeholder="输入菜品名称">
+                    <button class="dish-manager-save" onclick="confirmAddDish('soup')">添加</button>
+                    <button class="dish-manager-cancel" onclick="cancelAddRow('soup')">取消</button>
+                </div>
+
+                <div class="dish-manager-list" id="dish-manager-list-soup"></div>
+            </div>
+
         </div>
     </div>
 </div>
 
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, push, onValue, remove, set, get, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+<script>
+    // ==== LeanCloud 配置 ====
+    const LC_APP_ID = "4wN1V8FprHFt3NdU60IUXZhh-MdYXbMMI";
+    const LC_APP_KEY = "6nCZ1fYSj7k0hv5FRYryLDRJ";
+    const LC_SERVER = "https://4wn1v8fp.api.lncldglobal.com";
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyCf63C1feFLy7AvshyDo44USEboCgM88BA",
-        authDomain: "my-canteen-0105.firebaseapp.com",
-        databaseURL: "https://my-canteen-0105-default-rtdb.firebaseio.com",
-        projectId: "my-canteen-0105",
-        storageBucket: "my-canteen-0105.firebasestorage.app",
-        messagingSenderId: "11399021322",
-        appId: "1:11399021322:web:18902be0aba18402b2f0f3",
-        measurementId: "G-QJDV3WMWQ5"
-    };
-
-    let db;
-    let globalDishesData = {};
-    let globalVotes = {};
-    let currentWeekDishes = new Set();
-    let globalVoteLogs = {};
-
-    let currentUserId = localStorage.getItem('canteen_user_id');
-    if (!currentUserId) {
-        currentUserId = 'user_' + Math.random().toString(36).substr(2, 9);
-        localStorage.setItem('canteen_user_id', currentUserId);
+    function lcHeaders() {
+        return {
+            "X-LC-Id": LC_APP_ID,
+            "X-LC-Key": LC_APP_KEY,
+            "Content-Type": "application/json"
+        };
     }
 
-    let globalRecipes = {};
-    let globalRecipeVotes = {};
-    let currentRecipeTab = 'all';
+    async function lcQuery(className, whereObj, extraQuery) {
+        let queryStr = "";
+        if (whereObj && Object.keys(whereObj).length > 0) {
+            queryStr += "where=" + encodeURIComponent(JSON.stringify(whereObj));
+        }
+        if (extraQuery) {
+            queryStr += (queryStr ? "&" : "") + extraQuery;
+        }
+        const url = `${LC_SERVER}/1.1/classes/${className}` + (queryStr ? `?${queryStr}` : "");
+        const res = await fetch(url, { headers: lcHeaders() });
+        const data = await res.json();
+        if (data.error) {
+            console.error("LC Query Error:", data);
+            return [];
+        }
+        return data.results || [];
+    }
+
+    async function lcCreate(className, body) {
+        const res = await fetch(`${LC_SERVER}/1.1/classes/${className}`, {
+            method: "POST",
+            headers: lcHeaders(),
+            body: JSON.stringify(body)
+        });
+        const data = await res.json();
+        if (data.error) console.error("LC Create Error:", data);
+        return data;
+    }
+
+    async function lcUpdate(className, id, body) {
+        const res = await fetch(`${LC_SERVER}/1.1/classes/${className}/${id}`, {
+            method: "PUT",
+            headers: lcHeaders(),
+            body: JSON.stringify(body)
+        });
+        const data = await res.json();
+        if (data.error) console.error("LC Update Error:", data);
+        return data;
+    }
+
+    async function lcDelete(className, id) {
+        const res = await fetch(`${LC_SERVER}/1.1/classes/${className}/${id}`, {
+            method: "DELETE",
+            headers: lcHeaders()
+        });
+        if (!res.ok) {
+            const data = await res.json().catch(() => ({}));
+            console.error("LC Delete Error:", data);
+        }
+    }
+
+    // ==== 全局状态 ====
+    let globalDishesData = {};       // id -> {id, name, category}
+    let globalVotes = {};            // dishName -> {userId: value}
+    let globalVoteLogs = {};         // userId -> {dishName: ts}
+    let currentWeekDishes = new Set();
+
+    let globalRecipes = {};          // id -> recipe data
+    let globalRecipeVotes = {};      // recipeId -> {userId: objectId}
+    let currentRecipeTab = "all";
+
+    let currentUserId = localStorage.getItem("canteen_user_id");
+    if (!currentUserId) {
+        currentUserId = "user_" + Math.random().toString(36).substr(2, 9);
+        localStorage.setItem("canteen_user_id", currentUserId);
+    }
 
     let editingWeekID;
     let viewingWeekID;
 
     let currentSelectorTarget = null;
-    let tempSelectedDish = '';
+    let tempSelectedDish = "";
 
-    // 🔑 记录当前管理员操作：'menu'（编辑周菜单） 或 'library'（编辑菜品库）
-    let adminAction = 'menu';
+    let adminAction = "menu";
 
-    try {
-        const app = initializeApp(firebaseConfig);
-        db = getDatabase(app);
-        console.log("RTDB 连接成功, User:", currentUserId);
-    } catch (e) {
-        console.error("初始化失败", e);
-    }
-
+    // ==== 周工具函数 ====
     function getWeekID(d) {
         d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
         d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
@@ -1035,15 +1162,18 @@
         const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
         return `${d.getUTCFullYear()}-W${weekNo}`;
     }
+
     function getDateOfISOWeek(weekId) {
-        const [year, week] = weekId.split('-W').map(Number);
+        const [year, week] = weekId.split("-W").map(Number);
         const simple = new Date(year, 0, 1 + (week - 1) * 7);
         const ISOweekStart = simple;
         if (simple.getDay() <= 4) ISOweekStart.setDate(simple.getDate() - simple.getDay() + 1);
         else ISOweekStart.setDate(simple.getDate() + 8 - simple.getDay());
         return ISOweekStart;
     }
-    const fmtDate = (d) => `${(d.getMonth() + 1).toString().padStart(2, '0')}.${d.getDate().toString().padStart(2, '0')}`;
+
+    const fmtDate = (d) => `${(d.getMonth() + 1).toString().padStart(2, "0")}.${d.getDate().toString().padStart(2, "0")}`;
+
     function getWeekRangeText(weekId) {
         const monday = getDateOfISOWeek(weekId);
         const sunday = new Date(monday);
@@ -1056,294 +1186,133 @@
     const nextWeekDate = new Date(today); nextWeekDate.setDate(today.getDate() + 7); const nextWeekID = getWeekID(nextWeekDate);
     const lastWeekDate = new Date(today); lastWeekDate.setDate(today.getDate() - 7); const lastWeekID = getWeekID(lastWeekDate);
 
-    document.addEventListener('DOMContentLoaded', () => {
+    // ==== 初始化 ====
+    document.addEventListener("DOMContentLoaded", () => {
         viewingWeekID = currentWeekID;
         editingWeekID = currentWeekID;
 
-        if (db) {
-            onValue(ref(db, 'dishes'), (snapshot) => {
-                globalDishesData = snapshot.val() || {};
-                updateLibraryWithVotes();
-            });
-
-            onValue(ref(db, `weekly_menus/${currentWeekID}`), (snapshot) => {
-                const data = snapshot.val();
-                currentWeekDishes.clear();
-                if (data) {
-                    Object.values(data).forEach(day => {
-                        if (day.main) currentWeekDishes.add(day.main);
-                        if (day.stir) currentWeekDishes.add(day.stir);
-                        if (day.veg) currentWeekDishes.add(day.veg);
-                        if (day.soup) currentWeekDishes.add(day.soup);
-                    });
-                }
-                renderVotePage();
-            });
-
-            onValue(ref(db, 'votes'), (snapshot) => {
-                globalVotes = snapshot.val() || {};
-                renderVotePage();
-                updateLibraryWithVotes();
-            });
-
-            onValue(ref(db, 'recipes'), (snapshot) => {
-                globalRecipes = snapshot.val() || {};
-                renderRecipePage();
-            });
-
-            onValue(ref(db, `recipe_votes/${currentWeekID}`), (snapshot) => {
-                globalRecipeVotes = snapshot.val() || {};
-                renderRecipePage();
-            });
-
-            onValue(ref(db, 'vote_logs'), (snapshot) => {
-                globalVoteLogs = snapshot.val() || {};
-            });
-        }
-
+        document.getElementById("vote-date-banner").innerHTML = `<i class="far fa-clock"></i> ${getWeekRangeText(currentWeekID)}`;
+        document.getElementById("txt-edit-current-date").innerText = getWeekRangeText(currentWeekID);
+        document.getElementById("txt-edit-next-date").innerText = getWeekRangeText(nextWeekID);
         updateBannerDate();
-        loadMenuForWeek(currentWeekID);
-        document.getElementById('vote-date-banner').innerHTML = `<i class="far fa-clock"></i> ${getWeekRangeText(currentWeekID)}`;
-        document.getElementById('txt-edit-current-date').innerText = getWeekRangeText(currentWeekID);
-        document.getElementById('txt-edit-next-date').innerText = getWeekRangeText(nextWeekID);
 
-        const dishModal = document.getElementById('dishModalOverlay');
-        dishModal.addEventListener('click', (e) => { if (e.target === dishModal) closeDishModal(); });
+        // 点击遮罩关闭部分弹窗
+        const dishModal = document.getElementById("dishModalOverlay");
+        dishModal.addEventListener("click", (e) => { if (e.target === dishModal) closeDishModal(); });
 
-        const menuEditorOverlay = document.getElementById('menuEditorOverlay');
-        menuEditorOverlay.addEventListener('click', (e) => { if (e.target === menuEditorOverlay) closeMenuEditor(); });
+        const menuEditorOverlay = document.getElementById("menuEditorOverlay");
+        menuEditorOverlay.addEventListener("click", (e) => { if (e.target === menuEditorOverlay) closeMenuEditor(); });
 
-        const selectorOverlay = document.getElementById('selectorOverlay');
-        selectorOverlay.addEventListener('click', (e) => { if (e.target === selectorOverlay) closeSelector(); });
+        const selectorOverlay = document.getElementById("selectorOverlay");
+        selectorOverlay.addEventListener("click", (e) => { if (e.target === selectorOverlay) closeSelector(); });
 
-        const dishManagerOverlay = document.getElementById('dishManagerOverlay');
-        dishManagerOverlay.addEventListener('click', (e) => { if (e.target === dishManagerOverlay) closeDishManager(); });
+        const dishManagerOverlay = document.getElementById("dishManagerOverlay");
+        dishManagerOverlay.addEventListener("click", (e) => { if (e.target === dishManagerOverlay) closeDishManager(); });
+
+        initData();
     });
 
-    // 🔑 管理员密码弹窗：带 action 参数
-    window.requestAdminAccess = (action = 'menu') => {
-        adminAction = action; // 记录当前要做什么
-        document.getElementById('passwordOverlay').style.display = 'flex';
-        document.getElementById('adminPasswordInput').value = '';
-        document.getElementById('adminPasswordInput').focus();
-    };
+    async function initData() {
+        try {
+            await Promise.all([
+                loadDishes(),
+                loadVotes(),
+                loadRecipes(),
+                loadRecipeVotesForWeek(currentWeekID),
+                loadMenuForWeek(currentWeekID)
+            ]);
+        } catch (err) {
+            console.error("初始化数据失败:", err);
+        }
+    }
+
+    // ==== 管理员密码 ====
+    window.requestAdminAccess = (action = "menu") => {
+    adminAction = action;
+    const overlay = document.getElementById("passwordOverlay");
+    const input = document.getElementById("adminPasswordInput");
+
+    overlay.style.display = "flex";
+    input.value = "";
+
+    // ❌ 不再自动 input.focus()
+    // 让用户自己点输入框，这样系统更容易记住上一次的中文输入法状态
+};
     window.closePasswordModal = () => {
-        document.getElementById('passwordOverlay').style.display = 'none';
+        document.getElementById("passwordOverlay").style.display = "none";
     };
     window.verifyAdminPassword = () => {
-        const pwd = document.getElementById('adminPasswordInput').value;
-        if (pwd === 'jxst123') {
+        const pwd = document.getElementById("adminPasswordInput").value;
+        if (pwd === "122333") {
             closePasswordModal();
-            // 按 adminAction 决定进入哪个编辑器
-            if (adminAction === 'library') {
+            if (adminAction === "library") {
                 openDishManager();
             } else {
                 openMenuEditor();
             }
         } else {
-            alert('密码错误，无权操作！');
+            alert("密码错误，无权操作！");
         }
     };
 
-    function renderRecipePage() {
-        const listContainer = document.getElementById('recipe-list-container');
-        listContainer.innerHTML = '';
-        const recipes = Object.entries(globalRecipes).map(([id, data]) => ({ id, ...data }));
-        const mineRecipes = recipes.filter(r => r.authorId === currentUserId);
-        document.getElementById('count-recipe-all').innerText = recipes.length;
-        document.getElementById('count-recipe-mine').innerText = mineRecipes.length;
-
-        const displayList = currentRecipeTab === 'all' ? recipes : mineRecipes;
-        if (displayList.length === 0) {
-            listContainer.innerHTML = `<div style="text-align:center; color:#ccc; margin-top:30px;">暂无食谱</div>`;
-            return;
-        }
-
-        displayList.forEach(recipe => {
-            const votesObj = globalRecipeVotes[recipe.id] || {};
-            const voteCount = Object.keys(votesObj).length;
-            const hasVoted = votesObj[currentUserId] === true;
-            const canVote = currentRecipeTab === 'all';
-            const activeClass = hasVoted ? 'active' : '';
-
-            const card = document.createElement('div');
-            card.className = 'recipe-card';
-            card.onclick = (e) => {
-                if (e.target.closest('.recipe-support-area')) return;
-                openRecipeDetail(recipe);
+    // ==== 菜品 / 投票 ====
+    async function loadDishes() {
+        const results = await lcQuery("Dish", null, "limit=1000");
+        globalDishesData = {};
+        results.forEach(obj => {
+            globalDishesData[obj.objectId] = {
+                id: obj.objectId,
+                name: obj.name,
+                category: obj.category
             };
-
-            card.innerHTML = `
-                <div class="recipe-card-content">
-                    <div class="recipe-title">${recipe.name}</div>
-                    <div class="recipe-author">
-                        <i class="fas fa-user-circle"></i> ${recipe.authorId === currentUserId ? '我' : '同事分享'}
-                    </div>
-                </div>
-                <div class="recipe-support-area" ${canVote ? `onclick="toggleRecipeVote('${recipe.id}')"` : ''}>
-                    <i class="fas fa-fire icon-support ${activeClass}"></i>
-                    <span class="support-count">${voteCount > 0 ? voteCount + ' 支持' : '支持上桌'}</span>
-                </div>
-            `;
-            listContainer.appendChild(card);
         });
+        updateLibraryWithVotes();
+        renderVotePage();
     }
 
-    window.switchRecipeTab = (tab) => {
-        currentRecipeTab = tab;
-        document.querySelectorAll('.recipe-tab').forEach(el => el.classList.remove('active'));
-        document.getElementById(`tab-recipe-${tab}`).classList.add('active');
-        const uploadBtn = document.getElementById('upload-recipe-btn-container');
-        uploadBtn.style.display = tab === 'all' ? 'block' : 'none';
-        renderRecipePage();
-    };
+    async function loadVotes() {
+        const results = await lcQuery("Vote", null, "limit=1000");
+        globalVotes = {};
+        globalVoteLogs = {};
+        results.forEach(obj => {
+            const dishName = obj.dishName;
+            const userId = obj.userId;
+            const value = obj.value || 0;
 
-    window.openUploadRecipeModal = () => {
-        document.getElementById('uploadRecipeOverlay').style.display = 'flex';
-        document.getElementById('ingredients-container').innerHTML = '';
-        document.getElementById('steps-container').innerHTML = '';
-        document.getElementById('recipeTitleInput').value = '';
-        addIngredientRow();
-        addStepRow();
-    };
-    window.closeUploadRecipeModal = () => {
-        document.getElementById('uploadRecipeOverlay').style.display = 'none';
-    };
-    window.addIngredientRow = () => {
-        const div = document.createElement('div');
-        div.className = 'form-row ingredient-row';
-        div.innerHTML = `
-            <input type="text" class="input-field ing-name" placeholder="食材名" style="flex:2; margin:0; padding:10px;">
-            <input type="text" class="input-field ing-qty" placeholder="用量" style="flex:1; margin:0; padding:10px;">
-            <div class="btn-del-row" onclick="this.parentElement.remove()"><i class="fas fa-minus-circle"></i></div>
-        `;
-        document.getElementById('ingredients-container').appendChild(div);
-    };
-    window.addStepRow = () => {
-        const div = document.createElement('div');
-        div.className = 'form-row step-row';
-        div.innerHTML = `
-            <input type="text" class="input-field step-desc" placeholder="步骤描述..." style="flex:1; margin:0; padding:10px;">
-            <div class="btn-del-row" onclick="this.parentElement.remove()"><i class="fas fa-minus-circle"></i></div>
-        `;
-        document.getElementById('steps-container').appendChild(div);
-    };
-    window.submitRecipe = () => {
-        const title = document.getElementById('recipeTitleInput').value.trim();
-        if (!title) return alert('请填写菜品名称');
+            if (!globalVotes[dishName]) globalVotes[dishName] = {};
+            globalVotes[dishName][userId] = value;
 
-        const ings = [];
-        document.querySelectorAll('.ingredient-row').forEach(row => {
-            const name = row.querySelector('.ing-name').value.trim();
-            const qty = row.querySelector('.ing-qty').value.trim();
-            if (name) ings.push({ name, qty });
-        });
-
-        const steps = [];
-        document.querySelectorAll('.step-desc').forEach(row => {
-            const val = row.value.trim();
-            if (val) steps.push(val);
-        });
-
-        if (ings.length === 0 || steps.length === 0) return alert('请至少填写一项用料和步骤');
-
-        push(ref(db, 'recipes'), {
-            name: title,
-            ingredients: ings,
-            steps: steps,
-            authorId: currentUserId,
-            createdAt: Date.now()
-        }).then(() => {
-            alert('发布成功！');
-            closeUploadRecipeModal();
-        });
-    };
-
-    window.openRecipeDetail = (recipe) => {
-        document.getElementById('detail-title').innerText = recipe.name;
-        document.getElementById('detail-author').innerText = recipe.authorId === currentUserId ? '我' : '同事';
-
-        const ingHtml = (recipe.ingredients || [])
-            .map(i => `<div class="detail-item"><b>${i.name}</b>：${i.qty}</div>`)
-            .join('');
-        document.getElementById('detail-ingredients').innerHTML = ingHtml || '无详细用料';
-
-        const stepHtml = (recipe.steps || [])
-            .map((s, i) => `<div class="detail-item"><b>步骤 ${i + 1}：</b>${s}</div>`)
-            .join('');
-        document.getElementById('detail-steps').innerHTML = stepHtml || '无详细步骤';
-
-        document.getElementById('recipeDetailOverlay').style.display = 'flex';
-    };
-    window.closeRecipeDetail = () => {
-        document.getElementById('recipeDetailOverlay').style.display = 'none';
-    };
-
-    window.toggleRecipeVote = (recipeId) => {
-        const votesRef = ref(db, `recipe_votes/${currentWeekID}/${recipeId}/${currentUserId}`);
-        get(votesRef).then((snapshot) => {
-            if (snapshot.exists()) {
-                remove(votesRef);
-            } else {
-                set(votesRef, true);
+            if (value === 1) {
+                if (!globalVoteLogs[userId]) globalVoteLogs[userId] = {};
+                globalVoteLogs[userId][dishName] = new Date(obj.updatedAt).getTime();
             }
         });
-    };
-
-    window.showRecipeAnalysis = () => {
-        let stats = [];
-        Object.keys(globalRecipes).forEach(rId => {
-            const count = globalRecipeVotes[rId] ? Object.keys(globalRecipeVotes[rId]).length : 0;
-            if (count > 0) {
-                stats.push({ name: globalRecipes[rId].name, count: count });
-            }
-        });
-        stats.sort((a, b) => b.count - a.count);
-        const container = document.getElementById('analysis-content');
-        document.getElementById('analysis-title').innerHTML = '<i class="fas fa-fire"></i> 本周上桌期待榜';
-        if (stats.length === 0) {
-            container.innerHTML = '<div style="text-align:center; padding:30px;">本周还没有人投票哦</div>';
-        } else {
-            let html = '<div class="rank-card">';
-            stats.forEach((item, index) => {
-                html += `
-                    <div class="rank-item">
-                        <div style="display:flex; align-items:center;">
-                            <div class="rank-index" style="${index === 0 ? 'background:var(--mcd-yellow);' : ''}">${index + 1}</div>
-                            <div style="font-weight:bold;">${item.name}</div>
-                        </div>
-                        <div style="color:#FFBC0D; font-weight:bold;">${item.count} 票</div>
-                    </div>
-                `;
-            });
-            html += '</div>';
-            container.innerHTML = html;
-        }
-        document.getElementById('analysisOverlay').style.display = 'flex';
-    };
+        updateLibraryWithVotes();
+        renderVotePage();
+    }
 
     function renderVotePage() {
-        ['main', 'stir', 'veg', 'soup'].forEach(t => {
+        ["main", "stir", "veg", "soup"].forEach(t => {
             const c = document.getElementById(`vote-list-${t}`);
-            if (c) c.innerHTML = '';
+            if (c) c.innerHTML = "";
         });
 
         Object.values(globalDishesData || {}).forEach(dish => {
             if (currentWeekDishes.has(dish.name)) {
                 const dishVotes = globalVotes[dish.name] || {};
                 const myVote = dishVotes[currentUserId] || 0;
-                const likeActive = myVote === 1 ? 'active' : '';
-                const dislikeActive = myVote === -1 ? 'active' : '';
-                const icon = { main: '🍖', stir: '🍳', veg: '🥦', soup: '🥣' };
+                const likeActive = myVote === 1 ? "active" : "";
+                const dislikeActive = myVote === -1 ? "active" : "";
+                const icon = { main: "🍖", stir: "🍳", veg: "🥦", soup: "🥣" };
 
                 const html = `
                     <div class="vote-card">
-                        <div class="vote-card-img">${icon[dish.category] || '🍽️'}</div>
+                        <div class="vote-card-img">${icon[dish.category] || "🍽️"}</div>
                         <div class="vote-card-body">
                             <div class="vote-card-name">${dish.name}</div>
                             <div class="vote-actions">
-                                <div class="vote-btn like ${likeActive}" onclick="handleVote('${dish.name}', 1)"><i class="fas fa-thumbs-up"></i></div>
-                                <div class="vote-btn dislike ${dislikeActive}" onclick="handleVote('${dish.name}', -1)"><i class="fas fa-thumbs-down"></i></div>
+                                <div class="vote-btn like ${likeActive}" onclick="handleVote('${dish.name.replace(/'/g, "\\'")}', 1)"><i class="fas fa-thumbs-up"></i></div>
+                                <div class="vote-btn dislike ${dislikeActive}" onclick="handleVote('${dish.name.replace(/'/g, "\\'")}', -1)"><i class="fas fa-thumbs-down"></i></div>
                             </div>
                         </div>
                     </div>
@@ -1354,52 +1323,129 @@
         });
     }
 
-    window.handleVote = (dishName, type) => {
-        const dishVotes = globalVotes[dishName] || {};
-        const currentVal = dishVotes[currentUserId] || 0;
-        const newVal = (currentVal === type ? 0 : type);
+// === 替换原来的 window.handleVote 整段 ===
+window.handleVote = async (dishName, type) => {
+    // 当前这道菜的投票情况
+    const dishVotes = globalVotes[dishName] || {};
+    const currentVal = dishVotes[currentUserId] || 0;
+    // 如果重复点同一个按钮，就还原为 0；否则更新为 1/-1
+    const newVal = (currentVal === type ? 0 : type);
 
-        update(ref(db, `votes/${dishName}`), {
-            [currentUserId]: newVal
-        }).then(() => {
-            const logRef = ref(db, `vote_logs/${currentUserId}/${dishName}`);
+    // 1）先在本地更新 globalVotes，让 UI 立刻变化（不用等网络）
+    if (!globalVotes[dishName]) {
+        globalVotes[dishName] = {};
+    }
+    if (newVal === 0) {
+        delete globalVotes[dishName][currentUserId];
+    } else {
+        globalVotes[dishName][currentUserId] = newVal;
+    }
 
-            if (newVal === 1) {
-                set(logRef, Date.now());
+    // 2）本地更新点赞日志（分析用的数据）
+    if (!globalVoteLogs[currentUserId]) {
+        globalVoteLogs[currentUserId] = {};
+    }
+    if (newVal === 1) {
+        // 点赞：记录时间戳
+        globalVoteLogs[currentUserId][dishName] = Date.now();
+    } else {
+        // 取消赞或点踩：从日志里删掉
+        delete globalVoteLogs[currentUserId][dishName];
+    }
+
+    // 3）立刻重绘投票页面（按钮马上变色）
+    renderVotePage();
+
+    // 4）后台慢慢同步到 LeanCloud（失败了只在控制台报错，不打扰用户）
+    try {
+        // --- 同步 Vote 表 ---
+        // Vote: { dishName, userId, value }
+        const voteList = await lcQuery("Vote", {
+            dishName,
+            userId: currentUserId
+        }, "limit=1");
+
+        if (voteList.length > 0) {
+            const obj = voteList[0];
+            if (newVal === 0) {
+                // 变成 0：直接删除这条记录
+                await lcDelete("Vote", obj.objectId);
             } else {
-                remove(logRef);
+                // 更新为 1 或 -1
+                await lcUpdate("Vote", obj.objectId, {
+                    value: newVal
+                });
             }
-        });
-    };
+        } else {
+            // 原来没有记录，现在是 1 或 -1，就新建一条
+            if (newVal !== 0) {
+                await lcCreate("Vote", {
+                    dishName,
+                    userId: currentUserId,
+                    value: newVal
+                });
+            }
+        }
+
+        // --- 同步 VoteLog 表（点赞日志，给统计用） ---
+        // VoteLog: { dishName, userId, likedAt }
+        const logList = await lcQuery("VoteLog", {
+            dishName,
+            userId: currentUserId
+        }, "limit=1");
+
+        if (newVal === 1) {
+            // 点赞：存在则更新时间，不存在就新建
+            if (logList.length > 0) {
+                await lcUpdate("VoteLog", logList[0].objectId, {
+                    likedAt: Date.now()
+                });
+            } else {
+                await lcCreate("VoteLog", {
+                    dishName,
+                    userId: currentUserId,
+                    likedAt: Date.now()
+                });
+            }
+        } else {
+            // 不是点赞（0 或 -1）：日志里删掉该条
+            if (logList.length > 0) {
+                await lcDelete("VoteLog", logList[0].objectId);
+            }
+        }
+    } catch (err) {
+        console.error("投票同步失败：", err);
+        // 如果你想给提示，可以解开下面这行：
+        // alert("网络有点慢，投票可能没有成功保存，请稍后重试");
+    }
+};
 
     function updateLibraryWithVotes() {
-        ['main', 'stir', 'veg', 'soup'].forEach(id => {
-            const c = document.getElementById('list-' + id);
-            if (c) c.innerHTML = '';
+        ["main", "stir", "veg", "soup"].forEach(id => {
+            const c = document.getElementById("list-" + id);
+            if (c) c.innerHTML = "";
         });
 
-        if (globalDishesData) {
-            Object.entries(globalDishesData).forEach(([key, dish]) => {
-                const dishVotes = globalVotes[dish.name] || {};
-                let likes = 0, dislikes = 0;
-                Object.values(dishVotes).forEach(v => {
-                    if (v === 1) likes++;
-                    if (v === -1) dislikes++;
-                });
-                const html = createDishCard(key, dish.name, dish.category, likes, dislikes);
-                const container = document.getElementById('list-' + dish.category);
-                if (container) container.innerHTML += html;
+        Object.values(globalDishesData || {}).forEach(dish => {
+            const dishVotes = globalVotes[dish.name] || {};
+            let likes = 0, dislikes = 0;
+            Object.values(dishVotes).forEach(v => {
+                if (v === 1) likes++;
+                if (v === -1) dislikes++;
             });
-        }
+            const html = createDishCard(dish.id, dish.name, dish.category, likes, dislikes);
+            const container = document.getElementById("list-" + dish.category);
+            if (container) container.innerHTML += html;
+        });
     }
 
     function createDishCard(id, name, category, likes, dislikes) {
-        const icon = { main: '🍖', stir: '🍳', veg: '🥦', soup: '🥣' };
+        const icon = { main: "🍖", stir: "🍳", veg: "🥦", soup: "🥣" };
         likes = likes || 0;
         dislikes = dislikes || 0;
         return `
             <div class="big-dish-card">
-                <div class="card-img-area">${icon[category] || '🍽️'}</div>
+                <div class="card-img-area">${icon[category] || "🍽️"}</div>
                 <div class="card-info">
                     <div class="card-name">${name}</div>
                     <div class="card-meta">
@@ -1411,11 +1457,12 @@
         `;
     }
 
+    // ==== 数据分析（点赞） ====
     window.openAnalysis = () => {
-        document.getElementById('analysisOverlay').style.display = 'flex';
-        document.getElementById('analysis-title').innerHTML = '<i class="fas fa-chart-pie"></i> 数据分析';
+        document.getElementById("analysisOverlay").style.display = "flex";
+        document.getElementById("analysis-title").innerHTML = '<i class="fas fa-chart-pie"></i> 数据分析';
 
-        const container = document.getElementById('analysis-content');
+        const container = document.getElementById("analysis-content");
         const logsByUser = globalVoteLogs || {};
 
         if (!logsByUser || Object.keys(logsByUser).length === 0) {
@@ -1424,7 +1471,7 @@
         }
 
         const now = new Date();
-        const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).toString().padStart(2, '0')}`;
+        const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).toString().padStart(2, "0")}`;
         const currentYear = now.getFullYear();
 
         const weeklyMap = {};
@@ -1433,13 +1480,11 @@
 
         Object.values(logsByUser).forEach(userLog => {
             if (!userLog) return;
-
             Object.entries(userLog).forEach(([dishName, ts]) => {
                 if (!dishName || !ts) return;
-
                 const t = new Date(ts);
                 const weekId = getWeekID(t);
-                const monthKey = `${t.getFullYear()}-${String(t.getMonth() + 1).toString().padStart(2, '0')}`;
+                const monthKey = `${t.getFullYear()}-${String(t.getMonth() + 1).toString().padStart(2, "0")}`;
                 const year = t.getFullYear();
 
                 if (weekId === currentWeekID) {
@@ -1454,32 +1499,17 @@
             });
         });
 
-        const weeklyStats = Object.entries(weeklyMap)
-            .map(([name, count]) => ({ name, count }))
-            .sort((a, b) => b.count - a.count)
-            .slice(0, 1);
+        const weeklyStats = Object.entries(weeklyMap).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count).slice(0, 1);
+        const monthlyStats = Object.entries(monthlyMap).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count).slice(0, 3);
+        const yearlyStats = Object.entries(yearlyMap).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count).slice(0, 5);
 
-        const monthlyStats = Object.entries(monthlyMap)
-            .map(([name, count]) => ({ name, count }))
-            .sort((a, b) => b.count - a.count)
-            .slice(0, 3);
-
-        const yearlyStats = Object.entries(yearlyMap)
-            .map(([name, count]) => ({ name, count }))
-            .sort((a, b) => b.count - a.count)
-            .slice(0, 5);
-
-        if (
-            weeklyStats.length === 0 &&
-            monthlyStats.length === 0 &&
-            yearlyStats.length === 0
-        ) {
+        if (weeklyStats.length === 0 && monthlyStats.length === 0 && yearlyStats.length === 0) {
             container.innerHTML = '<div style="text-align:center; padding:30px;">本周、本月、本年暂时还没有点赞数据</div>';
             return;
         }
 
         const weekRangeText = getWeekRangeText(currentWeekID);
-        let html = '';
+        let html = "";
 
         if (weeklyStats.length > 0) {
             html += `
@@ -1526,50 +1556,70 @@
         container.innerHTML = html;
     };
 
-    window.closeAnalysis = () => {
-        document.getElementById('analysisOverlay').style.display = 'none';
-    };
-
     function renderRankItems(list) {
         return list.map((item, i) => `
             <div class="rank-item">
                 <div style="display:flex; align-items:center;">
-                    <div class="rank-index" style="${i === 0 ? 'background:var(--mcd-yellow);' : ''}">${i + 1}</div>
+                    <div class="rank-index" style="${i === 0 ? "background:var(--mcd-yellow);" : ""}">${i + 1}</div>
                     <div>${item.name}</div>
                 </div>
                 <div style="font-weight:bold; color:#FFBC0D">${item.count} ❤</div>
             </div>
-        `).join('');
+        `).join("");
     }
 
-    window.viewWeek = (mode, el) => {
-        document.querySelectorAll('.week-pill').forEach(p => p.classList.remove('active'));
-        el.classList.add('active');
-        if (mode === 'current') viewingWeekID = currentWeekID;
-        if (mode === 'next') viewingWeekID = nextWeekID;
-        if (mode === 'last') viewingWeekID = lastWeekID;
-        updateBannerDate();
-        loadMenuForWeek(viewingWeekID);
+    window.closeAnalysis = () => {
+        document.getElementById("analysisOverlay").style.display = "none";
     };
+
+    // ==== 周菜单展示 ====
     function updateBannerDate() {
-        document.getElementById('current-week-display').innerHTML = `<i class="far fa-clock"></i> ${getWeekRangeText(viewingWeekID)}`;
+        document.getElementById("current-week-display").innerHTML = `<i class="far fa-clock"></i> ${getWeekRangeText(viewingWeekID)}`;
     }
+
+    async function fetchWeeklyMenuFromLC(weekId) {
+        const results = await lcQuery("WeeklyMenu", { weekId }, "limit=1000");
+        const dataByDay = {};
+        results.forEach(obj => {
+            const idx = obj.dayIndex || 0;
+            dataByDay[idx] = {
+                main: obj.main || "",
+                stir: obj.stir || "",
+                veg: obj.veg || "",
+                soup: obj.soup || ""
+            };
+        });
+        return dataByDay;
+    }
+
     function loadMenuForWeek(weekId) {
-        const container = document.getElementById('weekly-menu-container');
-        container.innerHTML = `<div style="text-align:center; padding: 20px;"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>`;
-        onValue(ref(db, `weekly_menus/${weekId}`), (snapshot) => {
-            const data = snapshot.val();
-            container.innerHTML = '';
-            if (!data) {
-                container.innerHTML = `<div style="text-align:center; padding: 40px; color:#999;">暂无菜单</div>`;
+        const container = document.getElementById("weekly-menu-container");
+        container.innerHTML = `<div style="text-align:center; padding: 20px; color:#999;"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>`;
+
+        fetchWeeklyMenuFromLC(weekId).then(data => {
+            container.innerHTML = "";
+            if (!data || Object.keys(data).length === 0) {
+                container.innerHTML = `<div style="text-align:center; padding: 40px; color:#999;">暂无数据</div>`;
+                if (weekId === currentWeekID) {
+                    currentWeekDishes = new Set();
+                    renderVotePage();
+                }
                 return;
             }
+
             const monday = getDateOfISOWeek(weekId);
-            const weekDays = ['周一', '周二', '周三', '周四', '周五', '周六'];
+            const weekDays = ["周一", "周二", "周三", "周四", "周五", "周六"];
+
+            const weekDishNames = new Set();
+
             weekDays.forEach((dayName, index) => {
                 const cardDate = new Date(monday);
                 cardDate.setDate(monday.getDate() + index);
                 const dayData = data[index] || {};
+                ["main", "stir", "veg", "soup"].forEach(k => {
+                    if (dayData[k]) weekDishNames.add(dayData[k]);
+                });
+
                 const html = `
                     <div class="daily-menu-card">
                         <div class="daily-header">
@@ -1579,79 +1629,103 @@
                         <div class="menu-grid">
                             <div class="menu-row">
                                 <span class="menu-tag tag-main">主菜</span>
-                                <span class="menu-content">${dayData.main || '<span class="menu-empty">--</span>'}</span>
+                                <span class="menu-content">${dayData.main || "<span class='menu-empty'>--</span>"}</span>
                             </div>
                             <div class="menu-row">
                                 <span class="menu-tag tag-stir">炒菜</span>
-                                <span class="menu-content">${dayData.stir || '<span class="menu-empty">--</span>'}</span>
+                                <span class="menu-content">${dayData.stir || "<span class='menu-empty'>--</span>"}</span>
                             </div>
                             <div class="menu-row">
                                 <span class="menu-tag tag-veg">时蔬</span>
-                                <span class="menu-content">${dayData.veg || '<span class="menu-empty">--</span>'}</span>
+                                <span class="menu-content">${dayData.veg || "<span class='menu-empty'>--</span>"}</span>
                             </div>
                             <div class="menu-row">
                                 <span class="menu-tag tag-soup">汤</span>
-                                <span class="menu-content">${dayData.soup || '<span class="menu-empty">--</span>'}</span>
+                                <span class="menu-content">${dayData.soup || "<span class='menu-empty'>--</span>"}</span>
                             </div>
                         </div>
                     </div>
                 `;
                 container.innerHTML += html;
             });
+
+            if (weekId === currentWeekID) {
+                currentWeekDishes = weekDishNames;
+                renderVotePage();
+            }
+        }).catch(err => {
+            console.error("加载周菜单失败:", err);
+            container.innerHTML = `<div style="text-align:center; padding: 40px; color:#999;">加载失败，请稍后重试</div>`;
         });
     }
 
+    window.viewWeek = (mode, el) => {
+        document.querySelectorAll(".week-pill").forEach(p => p.classList.remove("active"));
+        el.classList.add("active");
+        if (mode === "current") viewingWeekID = currentWeekID;
+        if (mode === "next") viewingWeekID = nextWeekID;
+        if (mode === "last") viewingWeekID = lastWeekID;
+        updateBannerDate();
+        loadMenuForWeek(viewingWeekID);
+    };
+
+    // ==== 周菜单编辑 ====
     window.openMenuEditor = () => {
-        document.getElementById('menuEditorOverlay').style.display = 'flex';
-        selectEditWeek('current');
+        document.getElementById("menuEditorOverlay").style.display = "flex";
+        selectEditWeek("current");
     };
     window.closeMenuEditor = () => {
-        document.getElementById('menuEditorOverlay').style.display = 'none';
+        document.getElementById("menuEditorOverlay").style.display = "none";
     };
+
     window.selectEditWeek = (mode) => {
-        document.getElementById('btn-edit-current').classList.remove('selected');
-        document.getElementById('btn-edit-next').classList.remove('selected');
-        if (mode === 'current') {
-            document.getElementById('btn-edit-current').classList.add('selected');
+        document.getElementById("btn-edit-current").classList.remove("selected");
+        document.getElementById("btn-edit-next").classList.remove("selected");
+        if (mode === "current") {
+            document.getElementById("btn-edit-current").classList.add("selected");
             editingWeekID = currentWeekID;
         } else {
-            document.getElementById('btn-edit-next').classList.add('selected');
+            document.getElementById("btn-edit-next").classList.add("selected");
             editingWeekID = nextWeekID;
         }
         renderEditorForm(editingWeekID);
     };
 
     async function renderEditorForm(weekId) {
-        const container = document.getElementById('editor-form-container');
-        container.innerHTML = '加载中...';
-        const snapshot = await get(ref(db, `weekly_menus/${weekId}`));
-        const existingData = snapshot.val() || {};
-        const monday = getDateOfISOWeek(weekId);
-        const weekDays = ['周一', '周二', '周三', '周四', '周五', '周六'];
-        let html = '';
-        weekDays.forEach((dayName, index) => {
-            const cardDate = new Date(monday);
-            cardDate.setDate(monday.getDate() + index);
-            const dayData = existingData[index] || {};
-            html += `
-                <div class="edit-day-block">
-                    <div class="edit-day-title">
-                        <span>${dayName} ${fmtDate(cardDate)}</span>
+        const container = document.getElementById("editor-form-container");
+        container.innerHTML = "加载中...";
+        try {
+            const existingData = await fetchWeeklyMenuFromLC(weekId);
+            const monday = getDateOfISOWeek(weekId);
+            const weekDays = ["周一", "周二", "周三", "周四", "周五", "周六"];
+            let html = "";
+            weekDays.forEach((dayName, index) => {
+                const cardDate = new Date(monday);
+                cardDate.setDate(monday.getDate() + index);
+                const dayData = existingData[index] || {};
+                html += `
+                    <div class="edit-day-block">
+                        <div class="edit-day-title">
+                            <span>${dayName} ${fmtDate(cardDate)}</span>
+                        </div>
+                        ${createInputRow(index, "main", "主菜", "tag-main", dayData.main)}
+                        ${createInputRow(index, "stir", "炒菜", "tag-stir", dayData.stir)}
+                        ${createInputRow(index, "veg", "时蔬", "tag-veg", dayData.veg)}
+                        ${createInputRow(index, "soup", "汤品", "tag-soup", dayData.soup)}
                     </div>
-                    ${createInputRow(index, 'main', '主菜', 'tag-main', dayData.main)}
-                    ${createInputRow(index, 'stir', '炒菜', 'tag-stir', dayData.stir)}
-                    ${createInputRow(index, 'veg', '时蔬', 'tag-veg', dayData.veg)}
-                    ${createInputRow(index, 'soup', '汤品', 'tag-soup', dayData.soup)}
-                </div>
-            `;
-        });
-        container.innerHTML = html;
+                `;
+            });
+            container.innerHTML = html;
+        } catch (err) {
+            console.error("加载编辑菜单失败:", err);
+            container.innerHTML = "<div style='padding:10px; color:#999;'>加载失败，请稍后重试</div>";
+        }
     }
 
     function createInputRow(dayIndex, type, label, tagClass, value) {
-        const val = value || '';
-        const displayVal = val || '点击选择菜品';
-        const emptyClass = val ? '' : 'empty';
+        const val = value || "";
+        const displayVal = val || "点击选择菜品";
+        const emptyClass = val ? "" : "empty";
         return `
             <div class="edit-row">
                 <span class="menu-tag ${tagClass} edit-label">${label}</span>
@@ -1664,197 +1738,505 @@
 
     window.openSelector = (dayIndex, type) => {
         currentSelectorTarget = { dayIndex, type };
-        tempSelectedDish = '';
-        document.getElementById('selectorOverlay').style.display = 'flex';
-        const list = document.getElementById('selector-list');
-        list.innerHTML = '';
+        tempSelectedDish = "";
+        document.getElementById("selectorOverlay").style.display = "flex";
+        const list = document.getElementById("selector-list");
+        list.innerHTML = "";
         const filtered = Object.values(globalDishesData || {}).filter(d => d.category === type);
         if (filtered.length === 0) {
-            list.innerHTML = '暂无菜品';
+            list.innerHTML = "暂无菜品";
             return;
         }
         filtered.forEach(d => {
-            const el = document.createElement('div');
-            el.className = 'selector-item';
+            const el = document.createElement("div");
+            el.className = "selector-item";
             el.innerHTML = `<div class="selector-item-name">${d.name}</div>`;
             el.onclick = () => {
-                document.querySelectorAll('.selector-item').forEach(i => i.classList.remove('selected'));
-                el.classList.add('selected');
+                document.querySelectorAll(".selector-item").forEach(i => i.classList.remove("selected"));
+                el.classList.add("selected");
                 tempSelectedDish = d.name;
             };
             list.appendChild(el);
         });
     };
     window.closeSelector = () => {
-        document.getElementById('selectorOverlay').style.display = 'none';
+        document.getElementById("selectorOverlay").style.display = "none";
     };
     window.confirmDishSelection = () => {
         if (!tempSelectedDish) return;
         const { dayIndex, type } = currentSelectorTarget;
         document.getElementById(`box-${dayIndex}-${type}`).innerText = tempSelectedDish;
-        document.getElementById(`box-${dayIndex}-${type}`).classList.remove('empty');
+        document.getElementById(`box-${dayIndex}-${type}`).classList.remove("empty");
         document.querySelector(`.hidden-input-${dayIndex}-${type}`).value = tempSelectedDish;
         closeSelector();
     };
     window.clearSelection = (dayIndex, type) => {
-        document.getElementById(`box-${dayIndex}-${type}`).innerText = '点击选择菜品';
-        document.getElementById(`box-${dayIndex}-${type}`).classList.add('empty');
-        document.querySelector(`.hidden-input-${dayIndex}-${type}`).value = '';
+        document.getElementById(`box-${dayIndex}-${type}`).innerText = "点击选择菜品";
+        document.getElementById(`box-${dayIndex}-${type}`).classList.add("empty");
+        document.querySelector(`.hidden-input-${dayIndex}-${type}`).value = "";
     };
-    window.submitWeeklyMenu = () => {
-        const newData = {};
+
+    async function saveWeeklyMenu(weekId, newData) {
+        const existing = await lcQuery("WeeklyMenu", { weekId }, "limit=1000");
+        const delPromises = existing.map(obj => lcDelete("WeeklyMenu", obj.objectId));
+        await Promise.all(delPromises);
+
+        const createPromises = [];
         [0, 1, 2, 3, 4, 5].forEach(i => {
-            newData[i] = {
-                main: document.querySelector(`.hidden-input-${i}-main`).value,
-                stir: document.querySelector(`.hidden-input-${i}-stir`).value,
-                veg: document.querySelector(`.hidden-input-${i}-veg`).value,
-                soup: document.querySelector(`.hidden-input-${i}-soup`).value
-            };
+            const day = newData[i];
+            if (day && (day.main || day.stir || day.veg || day.soup)) {
+                createPromises.push(
+                    lcCreate("WeeklyMenu", {
+                        weekId,
+                        dayIndex: i,
+                        main: day.main || "",
+                        stir: day.stir || "",
+                        veg: day.veg || "",
+                        soup: day.soup || ""
+                    })
+                );
+            }
         });
-        set(ref(db, `weekly_menus/${editingWeekID}`), newData).then(() => {
-            alert('保存成功');
-            closeMenuEditor();
-        });
-    };
+        await Promise.all(createPromises);
+    }
 
-    let currentDishCategory = '';
-    const dishModal = document.getElementById('dishModalOverlay');
-    const dishInput = document.getElementById('dishNameInput');
+// === 替换原来的 window.submitWeeklyMenu 整段 ===
+window.submitWeeklyMenu = async () => {
+    // 把编辑器里的值收集成 newData（结构和之前一致）
+    const newData = {};
+    [0, 1, 2, 3, 4, 5].forEach(i => {
+        newData[i] = {
+            main: document.querySelector(`.hidden-input-${i}-main`).value,
+            stir: document.querySelector(`.hidden-input-${i}-stir`).value,
+            veg:  document.querySelector(`.hidden-input-${i}-veg`).value,
+            soup: document.querySelector(`.hidden-input-${i}-soup`).value
+        };
+    });
 
-    window.openDishModal = (category) => {
-        currentDishCategory = category;
-        const catName = { main: '主菜', stir: '炒菜', veg: '时蔬', soup: '汤品' };
-        document.getElementById('dishModalTitle').innerText = `添加${catName[category]}`;
-        dishModal.style.display = 'flex';
-        dishInput.value = '';
-        dishInput.focus();
-    };
+    try {
+        // 这里用的还是你原来 LeanCloud 版里已经实现的 saveWeeklyMenu(weekId, data)
+        await saveWeeklyMenu(editingWeekID, newData);
+
+        alert("保存成功");
+
+        // ✅ 只在“当前正在看的周”被编辑时，刷新一次
+        if (editingWeekID === viewingWeekID) {
+            loadMenuForWeek(viewingWeekID);
+        }
+
+        closeMenuEditor();
+    } catch (err) {
+        console.error("保存菜单失败：", err);
+        alert("保存失败，请检查网络后重试");
+    }
+};
+
+    // ==== 菜品库单个添加 ====
+    let currentDishCategory = "";
+    const dishModalElement = document.getElementById("dishModalOverlay");
+    const dishInput = document.getElementById("dishNameInput");
+
+window.openDishModal = (category) => {
+    currentDishCategory = category;
+    const catName = { main: "主菜", stir: "炒菜", veg: "时蔬", soup: "汤品" };
+
+    document.getElementById("dishModalTitle").innerText = `添加${catName[category]}`;
+    dishModalElement.style.display = "flex";
+    dishInput.value = "";
+
+    // ❌ 不主动 dishInput.focus()
+    // 用户点输入框时再弹出键盘，中文输入法状态就不会被打断
+};
     window.closeDishModal = () => {
-        dishModal.style.display = 'none';
+        dishModalElement.style.display = "none";
     };
-    window.submitDishToLibrary = () => {
+    window.submitDishToLibrary = async () => {
         const name = dishInput.value.trim();
         if (!name) return alert("请输入菜名！");
-        push(ref(db, 'dishes'), {
-            name: name,
-            category: currentDishCategory,
-            createdAt: Date.now()
-        }).then(() => closeDishModal());
+        try {
+            await lcCreate("Dish", {
+                name,
+                category: currentDishCategory,
+                createdAt: Date.now()
+            });
+            await loadDishes();
+            closeDishModal();
+        } catch (err) {
+            console.error("添加菜品失败:", err);
+            alert("添加失败");
+        }
     };
 
+    // ==== 页面切换 ====
     window.switchPage = (pageId, el) => {
-        document.querySelectorAll('.page-view').forEach(p => p.classList.remove('active'));
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        const page = document.getElementById('page-' + pageId);
-        if (page) page.classList.add('active');
-        el.classList.add('active');
-        if (pageId === 'vote') renderVotePage();
-        if (pageId === 'recipe') renderRecipePage();
-        if (pageId === 'library') updateLibraryWithVotes();
+        document.querySelectorAll(".page-view").forEach(p => p.classList.remove("active"));
+        document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
+        const page = document.getElementById("page-" + pageId);
+        if (page) page.classList.add("active");
+        el.classList.add("active");
+        if (pageId === "vote") renderVotePage();
+        if (pageId === "recipe") renderRecipePage();
+        if (pageId === "library") updateLibraryWithVotes();
     };
 
-    // 菜品库编辑弹窗逻辑
-    const DISH_CATEGORIES = [
-        { key: 'main', label: '主菜', icon: '🍖' },
-        { key: 'stir', label: '炒菜', icon: '🍳' },
-        { key: 'veg',  label: '时蔬', icon: '🥦' },
-        { key: 'soup', label: '汤品', icon: '🥣' }
-    ];
+// ==== 菜品库编辑弹窗逻辑（新版，和食谱同样的输入体验） ====
 
-    window.openDishManager = () => {
-        const overlay = document.getElementById('dishManagerOverlay');
-        const body = document.getElementById('dish-manager-body');
-        body.innerHTML = '';
+// 打开弹窗：根据 globalDishesData 渲染四个分类列表
+window.openDishManager = () => {
+    renderDishManagerLists();
+    document.getElementById('dishManagerOverlay').style.display = 'flex';
+};
 
-        DISH_CATEGORIES.forEach(cat => {
-            const section = document.createElement('div');
-            section.className = 'dish-manager-section';
-            section.innerHTML = `
-                <div class="dish-manager-header">
-                    <div class="dish-manager-title">
-                        <div class="cat-icon-small">${cat.icon}</div>
-                        ${cat.label}
-                    </div>
-                    <button class="dish-manager-add" onclick="addDishInputRow('${cat.key}')">
-                        <i class="fas fa-plus"></i> 新增
-                    </button>
-                </div>
-                <div class="dish-manager-list" id="dish-manager-list-${cat.key}"></div>
-            `;
-            body.appendChild(section);
-        });
+// 关闭弹窗
+window.closeDishManager = () => {
+    document.getElementById('dishManagerOverlay').style.display = 'none';
+};
 
-        Object.entries(globalDishesData || {}).forEach(([id, dish]) => {
-            const list = document.getElementById(`dish-manager-list-${dish.category}`);
-            if (!list) return;
-            const row = buildExistingDishRow(id, dish.name, dish.category);
-            list.appendChild(row);
-        });
+// 把 globalDishesData 渲染到四个列表里
+function renderDishManagerLists() {
+    const cats = ['main', 'stir', 'veg', 'soup'];
 
-        overlay.style.display = 'flex';
-    };
+    // 先清空列表
+    cats.forEach(c => {
+        const listEl = document.getElementById('dish-manager-list-' + c);
+        if (listEl) listEl.innerHTML = '';
+    });
 
-    window.closeDishManager = () => {
-        document.getElementById('dishManagerOverlay').style.display = 'none';
-    };
+    // 没有数据就直接返回
+    if (!globalDishesData) return;
 
-    function buildExistingDishRow(id, name, category) {
+    // 把每道菜插到对应分类的列表中
+    Object.entries(globalDishesData).forEach(([id, dish]) => {
+        const listEl = document.getElementById('dish-manager-list-' + dish.category);
+        if (!listEl) return;
+
         const row = document.createElement('div');
         row.className = 'dish-manager-row';
         row.dataset.id = id;
-        row.dataset.category = category;
+        row.dataset.category = dish.category;
         row.innerHTML = `
-            <div class="dish-manager-name-tag">${name}</div>
+            <div class="dish-manager-name-tag">${dish.name}</div>
             <button class="dish-manager-delete" onclick="deleteDishRow('${id}')">
                 删除
             </button>
         `;
-        return row;
+        listEl.appendChild(row);
+    });
+}
+
+// 显示某个分类的“新增输入行”
+window.showAddRow = (category) => {
+    const row = document.getElementById('add-row-' + category);
+    const input = document.getElementById('input-add-' + category);
+    if (!row || !input) return;
+
+    // 显示“新增”这一行
+    row.style.display = 'flex';
+    input.value = '';
+
+    // ❌ 不再自动 input.focus()
+    // ✅ 你用手点一下输入框再打字，系统会沿用你上一次的中文输入法
+};
+
+// 取消新增（隐藏行 + 清空）
+window.cancelAddRow = (category) => {
+    const row = document.getElementById('add-row-' + category);
+    const input = document.getElementById('input-add-' + category);
+    if (!row || !input) return;
+
+    row.style.display = 'none';
+    input.value = '';
+};
+
+// 点击“添加”按钮：把菜品写入 LeanCloud，然后刷新列表
+window.confirmAddDish = async (category) => {
+    const input = document.getElementById('input-add-' + category);
+    if (!input) return;
+
+    const name = input.value.trim();
+    if (!name) {
+        alert('请输入菜品名称');
+        input.focus();
+        return;
     }
 
-    window.addDishInputRow = (category) => {
-        const list = document.getElementById('dish-manager-list-' + category);
-        if (!list) return;
-        const row = document.createElement('div');
-        row.className = 'dish-manager-row';
-        row.dataset.category = category;
-        row.innerHTML = `
-            <input type="text" class="dish-manager-input" placeholder="输入菜品名称">
-            <button class="dish-manager-save" onclick="saveNewDish(this)">添加</button>
-            <button class="dish-manager-cancel" onclick="this.parentElement.remove()">取消</button>
-        `;
-        list.prepend(row);
-    };
+    try {
+        // 写入 LeanCloud：Dish 表（你前面已经有 lcCreate 定义）
+        await lcCreate('Dish', {
+            name,
+            category
+        });
 
-    window.saveNewDish = (btn) => {
-        const row = btn.parentElement;
-        const input = row.querySelector('.dish-manager-input');
-        const name = input.value.trim();
-        const category = row.dataset.category;
-        if (!name) {
-            alert('请输入菜品名称');
-            input.focus();
+        // 清空并隐藏当前输入行
+        input.value = '';
+        document.getElementById('add-row-' + category).style.display = 'none';
+
+        // 重新拉取菜品数据并刷新 UI
+        await reloadDishesForManager();
+    } catch (e) {
+        console.error('新增菜品失败:', e);
+        alert('新增菜品失败，请稍后重试');
+    }
+};
+
+// 给“编辑菜品库”这一块专用的刷新函数
+async function reloadDishesForManager() {
+    try {
+        // 从 LeanCloud 拉 Dish 列表
+        const list = await lcQuery('Dish', {}, 'limit=1000');
+
+        const map = {};
+        (list || []).forEach(obj => {
+            map[obj.objectId] = {
+                name: obj.name,
+                category: obj.category
+            };
+        });
+
+        // 更新全局数据
+        globalDishesData = map;
+
+        // 刷新第四个“菜单总览”页面
+        if (typeof updateLibraryWithVotes === 'function') {
+            updateLibraryWithVotes();
+        }
+
+        // 刷新当前弹窗里的列表
+        renderDishManagerLists();
+    } catch (e) {
+        console.error('重新加载菜品库失败:', e);
+    }
+}
+
+// 删除菜品：删 LeanCloud → 重新加载
+window.deleteDishRow = async (id) => {
+    if (!confirm('确定要删除这道菜吗？')) return;
+
+    try {
+        await lcDelete('Dish', id);
+        await reloadDishesForManager();
+    } catch (e) {
+        console.error('删除菜品失败:', e);
+        alert('删除失败，请稍后重试');
+    }
+};
+    // ==== 食谱相关 ====
+    async function loadRecipes() {
+        const results = await lcQuery("Recipe", null, "limit=1000&order=-createdAt");
+        globalRecipes = {};
+        results.forEach(obj => {
+            globalRecipes[obj.objectId] = {
+                id: obj.objectId,
+                name: obj.name,
+                ingredients: obj.ingredients || [],
+                steps: obj.steps || [],
+                authorId: obj.authorId || ""
+            };
+        });
+        renderRecipePage();
+    }
+
+    async function loadRecipeVotesForWeek(weekId) {
+        const results = await lcQuery("RecipeVote", { weekId }, "limit=1000");
+        globalRecipeVotes = {};
+        results.forEach(obj => {
+            const rId = obj.recipeId;
+            const uId = obj.userId;
+            if (!globalRecipeVotes[rId]) globalRecipeVotes[rId] = {};
+            globalRecipeVotes[rId][uId] = obj.objectId;
+        });
+        renderRecipePage();
+    }
+
+    function renderRecipePage() {
+        const listContainer = document.getElementById("recipe-list-container");
+        if (!listContainer) return;
+        listContainer.innerHTML = "";
+        const recipesArr = Object.entries(globalRecipes).map(([id, data]) => ({ id, ...data }));
+        const mineRecipes = recipesArr.filter(r => r.authorId === currentUserId);
+        document.getElementById("count-recipe-all").innerText = recipesArr.length;
+        document.getElementById("count-recipe-mine").innerText = mineRecipes.length;
+
+        const displayList = currentRecipeTab === "all" ? recipesArr : mineRecipes;
+        if (displayList.length === 0) {
+            listContainer.innerHTML = `<div style="text-align:center; color:#ccc; margin-top:30px;">暂无食谱</div>`;
             return;
         }
-        push(ref(db, 'dishes'), {
-            name,
-            category,
-            createdAt: Date.now()
-        }).then((snap) => {
-            const id = snap.key;
-            const newRow = buildExistingDishRow(id, name, category);
-            row.replaceWith(newRow);
-            updateLibraryWithVotes();
+
+        displayList.forEach(recipe => {
+            const votesObj = globalRecipeVotes[recipe.id] || {};
+            const voteCount = Object.keys(votesObj).length;
+            const hasVoted = !!votesObj[currentUserId];
+            const canVote = currentRecipeTab === "all";
+            const activeClass = hasVoted ? "active" : "";
+
+            const card = document.createElement("div");
+            card.className = "recipe-card";
+            card.onclick = (e) => {
+                if (e.target.closest(".recipe-support-area")) return;
+                openRecipeDetail(recipe);
+            };
+
+            card.innerHTML = `
+                <div class="recipe-card-content">
+                    <div class="recipe-title">${recipe.name}</div>
+                    <div class="recipe-author">
+                        <i class="fas fa-user-circle"></i> ${recipe.authorId === currentUserId ? "我" : "同事分享"}
+                    </div>
+                </div>
+                <div class="recipe-support-area" ${canVote ? `onclick="toggleRecipeVote('${recipe.id}')"` : ""}>
+                    <i class="fas fa-fire icon-support ${activeClass}"></i>
+                    <span class="support-count">${voteCount > 0 ? voteCount + " 支持" : "支持上桌"}</span>
+                </div>
+            `;
+            listContainer.appendChild(card);
         });
+    }
+
+    window.switchRecipeTab = (tab) => {
+        currentRecipeTab = tab;
+        document.querySelectorAll(".recipe-tab").forEach(el => el.classList.remove("active"));
+        document.getElementById(`tab-recipe-${tab}`).classList.add("active");
+        const uploadBtn = document.getElementById("upload-recipe-btn-container");
+        uploadBtn.style.display = tab === "all" ? "block" : "none";
+        renderRecipePage();
     };
 
-    window.deleteDishRow = (id) => {
-        if (!confirm('确定要删除这道菜吗？')) return;
-        remove(ref(db, 'dishes/' + id)).then(() => {
-            const row = document.querySelector(`.dish-manager-row[data-id="${id}"]`);
-            if (row) row.remove();
-            updateLibraryWithVotes();
+    window.openUploadRecipeModal = () => {
+        document.getElementById("uploadRecipeOverlay").style.display = "flex";
+        document.getElementById("ingredients-container").innerHTML = "";
+        document.getElementById("steps-container").innerHTML = "";
+        document.getElementById("recipeTitleInput").value = "";
+        addIngredientRow();
+        addStepRow();
+    };
+    window.closeUploadRecipeModal = () => {
+        document.getElementById("uploadRecipeOverlay").style.display = "none";
+    };
+    window.addIngredientRow = () => {
+        const div = document.createElement("div");
+        div.className = "form-row ingredient-row";
+        div.innerHTML = `
+            <input type="text" class="input-field ing-name" placeholder="食材名" style="flex:2; margin:0; padding:10px;">
+            <input type="text" class="input-field ing-qty" placeholder="用量" style="flex:1; margin:0; padding:10px;">
+            <div class="btn-del-row" onclick="this.parentElement.remove()"><i class="fas fa-minus-circle"></i></div>
+        `;
+        document.getElementById("ingredients-container").appendChild(div);
+    };
+    window.addStepRow = () => {
+        const div = document.createElement("div");
+        div.className = "form-row step-row";
+        div.innerHTML = `
+            <input type="text" class="input-field step-desc" placeholder="步骤描述..." style="flex:1; margin:0; padding:10px;">
+            <div class="btn-del-row" onclick="this.parentElement.remove()"><i class="fas fa-minus-circle"></i></div>
+        `;
+        document.getElementById("steps-container").appendChild(div);
+    };
+    window.submitRecipe = async () => {
+        const title = document.getElementById("recipeTitleInput").value.trim();
+        if (!title) return alert("请填写菜品名称");
+
+        const ings = [];
+        document.querySelectorAll(".ingredient-row").forEach(row => {
+            const name = row.querySelector(".ing-name").value.trim();
+            const qty = row.querySelector(".ing-qty").value.trim();
+            if (name) ings.push({ name, qty });
         });
+
+        const steps = [];
+        document.querySelectorAll(".step-desc").forEach(row => {
+            const val = row.value.trim();
+            if (val) steps.push(val);
+        });
+
+        if (ings.length === 0 || steps.length === 0) return alert("请至少填写一项用料和步骤");
+
+        try {
+            await lcCreate("Recipe", {
+                name: title,
+                ingredients: ings,
+                steps: steps,
+                authorId: currentUserId
+            });
+            alert("发布成功！");
+            closeUploadRecipeModal();
+            await loadRecipes();
+        } catch (err) {
+            console.error("发布食谱失败:", err);
+            alert("发布失败");
+        }
+    };
+
+    window.openRecipeDetail = (recipe) => {
+        document.getElementById("detail-title").innerText = recipe.name;
+        document.getElementById("detail-author").innerText = recipe.authorId === currentUserId ? "我" : "同事";
+
+        const ingHtml = (recipe.ingredients || [])
+            .map(i => `<div class="detail-item"><b>${i.name}</b>：${i.qty}</div>`)
+            .join("");
+        document.getElementById("detail-ingredients").innerHTML = ingHtml || "无详细用料";
+
+        const stepHtml = (recipe.steps || [])
+            .map((s, i) => `<div class="detail-item"><b>步骤 ${i + 1}：</b>${s}</div>`)
+            .join("");
+        document.getElementById("detail-steps").innerHTML = stepHtml || "无详细步骤";
+
+        document.getElementById("recipeDetailOverlay").style.display = "flex";
+    };
+    window.closeRecipeDetail = () => {
+        document.getElementById("recipeDetailOverlay").style.display = "none";
+    };
+
+    window.toggleRecipeVote = async (recipeId) => {
+        const existingId = (globalRecipeVotes[recipeId] || {})[currentUserId];
+        try {
+            if (existingId) {
+                await lcDelete("RecipeVote", existingId);
+            } else {
+                await lcCreate("RecipeVote", {
+                    weekId: currentWeekID,
+                    recipeId,
+                    userId: currentUserId
+                });
+            }
+            await loadRecipeVotesForWeek(currentWeekID);
+        } catch (err) {
+            console.error("食谱投票失败:", err);
+            alert("操作失败");
+        }
+    };
+
+    window.showRecipeAnalysis = () => {
+        let stats = [];
+        Object.keys(globalRecipes).forEach(rId => {
+            const votesObj = globalRecipeVotes[rId] || {};
+            const count = Object.keys(votesObj).length;
+            if (count > 0) {
+                stats.push({ name: globalRecipes[rId].name, count: count });
+            }
+        });
+        stats.sort((a, b) => b.count - a.count);
+        const container = document.getElementById("analysis-content");
+        document.getElementById("analysis-title").innerHTML = '<i class="fas fa-fire"></i> 本周上桌期待榜';
+        if (stats.length === 0) {
+            container.innerHTML = "<div style='text-align:center; padding:30px;'>本周还没有人投票哦</div>";
+        } else {
+            let html = '<div class="rank-card">';
+            stats.forEach((item, index) => {
+                html += `
+                    <div class="rank-item">
+                        <div style="display:flex; align-items:center;">
+                            <div class="rank-index" style="${index === 0 ? "background:var(--mcd-yellow);" : ""}">${index + 1}</div>
+                            <div style="font-weight:bold;">${item.name}</div>
+                        </div>
+                        <div style="color:#FFBC0D; font-weight:bold;">${item.count} 票</div>
+                    </div>
+                `;
+            });
+            html += "</div>";
+            container.innerHTML = html;
+        }
+        document.getElementById("analysisOverlay").style.display = "flex";
     };
 </script>
 </body>
